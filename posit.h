@@ -6,7 +6,6 @@
 
 #define POSIT_UTYPE     uint32_t
 #define POSIT_STYPE     int32_t
-#define POSIT_MASK      ((POSIT_UTYPE)-1)
 #define POSIT_SIZE      (8 * sizeof(POSIT_UTYPE))
 
 class Posit {
@@ -29,13 +28,13 @@ public:
     unsigned es();                  // exponent size in bits
     unsigned fs();                  // fraction size in bits
 
-    Posit neg();                     // -x
-    Posit rec();                     // /x
+    Posit neg();                    // -x
+    Posit rec();                    // /x
 
-    Posit add(Posit& p);             // x + p
-    Posit sub(Posit& p);             // x - p as x + -p
-    Posit mul(Posit& p);             // x * p
-    Posit div(Posit& p);             // x / p as x * /p
+    Posit add(Posit& p);            // x + p
+    Posit sub(Posit& p);            // x - p as x + -p
+    Posit mul(Posit& p);            // x * p
+    Posit div(Posit& p);            // x / p as x * /p
 
     bool eq(Posit& p);              // x == p
     bool gt(Posit& p);              // x > p

@@ -2,7 +2,7 @@
 
 POSIT_UTYPE Posit::buildMask(unsigned size)
 {
-    POSIT_UTYPE mask = POSIT_MASK;
+    POSIT_UTYPE mask = ~(POSIT_UTYPE)0;
 
     mask <<= POSIT_SIZE - size;
     mask >>= POSIT_SIZE - size;
