@@ -140,41 +140,17 @@ bool Posit::gt(Posit& p)
 
 bool Posit::ge(Posit& p)
 {
-    if (isInf() || p.isInf()) {
-        // TODO throw exception
-    }
-
-    // use sign bit of the base type to perform comparison
-    POSIT_STYPE xbits = mBits << (POSIT_SIZE - mNbits);
-    POSIT_STYPE pbits = p.mBits << (POSIT_SIZE - mNbits);
-
-    return xbits >= pbits;
+    return gt(p) || eq(p);
 }
 
 bool Posit::lt(Posit& p)
 {
-    if (isInf() || p.isInf()) {
-        // TODO throw exception
-    }
-
-    // use sign bit of the base type to perform comparison
-    POSIT_STYPE xbits = mBits << (POSIT_SIZE - mNbits);
-    POSIT_STYPE pbits = p.mBits << (POSIT_SIZE - mNbits);
-
-    return xbits < pbits;
+    return !gt(p) && !eq(p);
 }
 
 bool Posit::le(Posit& p)
 {
-    if (isInf() || p.isInf()) {
-        // TODO throw exception
-    }
-
-    // use sign bit of the base type to perform comparison
-    POSIT_STYPE xbits = mBits << (POSIT_SIZE - mNbits);
-    POSIT_STYPE pbits = p.mBits << (POSIT_SIZE - mNbits);
-
-    return xbits <= pbits;
+    return !gt(p);
 }
 
 void Posit::set(int n)
