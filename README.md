@@ -28,6 +28,6 @@ superior answer quality."
 
 ### References
 
-- [Abstract](http://web.stanford.edu/class/ee380/Abstracts/170201.html])
+- [Abstract](http://web.stanford.edu/class/ee380/Abstracts/170201.html)
 - [Posit slides](http://ee380.stanford.edu/Abstracts/170201-slides.pdf)
 - [Unum slides](http://www.johngustafson.net/presentations/Unums2.0.pdf)
