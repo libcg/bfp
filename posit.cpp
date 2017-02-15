@@ -94,10 +94,10 @@ Posit Posit::neg()
 Posit Posit::rec()
 {
     Posit p = Posit(mNbits, mEs);
-    POSIT_UTYPE mask = buildMask(mNbits - 1);
+    POSIT_UTYPE mask = buildMask(mNbits);
 
     // reverse all bits but the first one and add one
-    p.mBits = ((mBits ^ mask) + 1) & ((mask << 1) | 1);
+    p.mBits = ((mBits ^ (mask >> 1)) + 1) & mask;
 
     return p;
 }
