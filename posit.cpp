@@ -70,6 +70,16 @@ unsigned Posit::fs()
     return mNbits - 1 - rs() - es();
 }
 
+Posit Posit::zero()
+{
+    return Posit(mNbits, mEs);
+}
+
+Posit Posit::inf()
+{
+    return zero().rec();
+}
+
 Posit Posit::neg()
 {
     Posit p = Posit(mNbits, mEs);

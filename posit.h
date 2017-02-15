@@ -28,6 +28,9 @@ public:
     unsigned es();                  // exponent size in bits
     unsigned fs();                  // fraction size in bits
 
+    Posit zero();                   // 0
+    Posit inf();                    // +/-inf
+
     Posit neg();                    // -x
     Posit rec();                    // /x
 
