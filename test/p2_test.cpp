@@ -25,7 +25,7 @@ void TestP2Zero(CuTest* tc)
     CuAssertTrue(tc, p.eq(zero));
     CuAssertTrue(tc, !p.eq(inf));
     CuAssertTrue(tc, p.eq(neg));
-    CuAssertTrue(tc, rec.eq(inf));
+    CuAssertTrue(tc, rec.isInf());
 }
 
 CuSuite* TestP2GetSuite(void)
