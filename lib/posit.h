@@ -57,6 +57,7 @@ public:
 
     // debug
     void setBits(POSIT_UTYPE bits);
+    POSIT_UTYPE getBits();
     void print();
 };
 

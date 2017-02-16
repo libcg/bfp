@@ -212,6 +212,11 @@ void Posit::setBits(POSIT_UTYPE bits)
     mBits = bits;
 }
 
+POSIT_UTYPE Posit::getBits()
+{
+    return mBits;
+}
+
 void Posit::print()
 {
     Posit p = isNeg() ? neg() : *this;
