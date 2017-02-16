@@ -15,6 +15,8 @@ private:
     unsigned mEs;
     bool mNan;
 
+    Posit(unsigned nbits, unsigned es, bool nan);
+
     POSIT_UTYPE buildMask(unsigned size);
 
 public:
@@ -32,6 +34,7 @@ public:
 
     Posit zero();                   // 0
     Posit inf();                    // +/-inf
+    Posit nan();                    // NaN
 
     Posit neg();                    // -x
     Posit rec();                    // /x

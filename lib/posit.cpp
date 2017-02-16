@@ -10,11 +10,16 @@ POSIT_UTYPE Posit::buildMask(unsigned size)
     return mask;
 }
 
-Posit::Posit(unsigned nbits, unsigned es) :
+Posit::Posit(unsigned nbits, unsigned es, bool nan) :
     mBits(0x0),
     mNbits(nbits),
     mEs(es),
-    mNan(false)
+    mNan(nan)
+{
+}
+
+Posit::Posit(unsigned nbits, unsigned es) :
+    Posit(nbits, es, false)
 {
 }
 
@@ -84,6 +89,11 @@ Posit Posit::zero()
 Posit Posit::inf()
 {
     return zero().rec();
+}
+
+Posit Posit::nan()
+{
+    return Posit(mNbits, mEs, true);
 }
 
 Posit Posit::neg()
