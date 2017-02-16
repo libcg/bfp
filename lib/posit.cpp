@@ -120,6 +120,22 @@ Posit Posit::rec()
 
 Posit Posit::add(Posit& p)
 {
+    // fast exit
+    if (isZero()) {
+        return p;
+    } else if (p.isZero()) {
+        return *this;
+    } else if (neg().eq(p)) {
+        return zero();
+    }
+
+    // edge cases
+    if (isInf() && p.isInf()) {
+        return nan();
+    } else if (isInf() || p.isInf()) {
+        return inf();
+    }
+
     // TODO implement
     return *this;
 }

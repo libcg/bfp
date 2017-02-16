@@ -7,7 +7,15 @@
 #include "CuTest.h"
 #include "posit.h"
 
-void TestP2Zero(CuTest* tc)
+static POSIT_STYPE add_table[4][4] = {
+//       0     1   inf    -1
+    { 0b00, 0b01, 0b10, 0b11 }, // 0
+    { 0b01, 0b01, 0b10, 0b00 }, // 1
+    { 0b10, 0b10,   -1, 0b10 }, // inf
+    { 0b11, 0b00, 0b10, 0b11 }, // -1
+};
+
+static void TestP2Zero(CuTest* tc)
 {
     Posit p = Posit(2, 0);
     Posit zero = p.zero();
@@ -28,11 +36,34 @@ void TestP2Zero(CuTest* tc)
     CuAssertTrue(tc, rec.isInf());
 }
 
+static void TestP2Add(CuTest* tc)
+{
+    Posit a = Posit(2, 0);
+    Posit b = Posit(2, 0);
+
+    for (int i = 0; i < 4; i++) {
+        a.setBits(i);
+        for (int j = 0; j <= i; j++) {
+            b.setBits(j);
+
+            Posit c = a.add(b);
+
+            if (add_table[i][j] == -1) {
+                CuAssertTrue(tc, c.isNan());
+            } else {
+                CuAssertTrue(tc, !c.isNan());
+                CuAssertTrue(tc, c.getBits() == (POSIT_UTYPE)add_table[i][j]);
+            }
+        }
+    }
+}
+
 CuSuite* TestP2GetSuite(void)
 {
 	CuSuite* suite = CuSuiteNew();
 
 	SUITE_ADD_TEST(suite, TestP2Zero);
+	SUITE_ADD_TEST(suite, TestP2Add);
 
 	return suite;
 }
