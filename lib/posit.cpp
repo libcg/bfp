@@ -13,7 +13,8 @@ POSIT_UTYPE Posit::buildMask(unsigned size)
 Posit::Posit(unsigned nbits, unsigned es) :
     mBits(0x0),
     mNbits(nbits),
-    mEs(es)
+    mEs(es),
+    mNan(false)
 {
 }
 
@@ -30,6 +31,11 @@ bool Posit::isInf()
 bool Posit::isNeg()
 {
     return (mBits & (1 << (mNbits - 1))) && !isInf();
+}
+
+bool Posit::isNan()
+{
+    return mNan;
 }
 
 unsigned Posit::nbits()

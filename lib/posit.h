@@ -13,6 +13,7 @@ private:
     POSIT_UTYPE mBits;
     unsigned mNbits;
     unsigned mEs;
+    bool mNan;
 
     POSIT_UTYPE buildMask(unsigned size);
 
@@ -22,6 +23,7 @@ public:
     bool isZero();                  // check for 0
     bool isInf();                   // check for +/- infinity
     bool isNeg();                   // check for negative
+    bool isNan();                   // check for NaN
 
     unsigned nbits();               // size in bits
     unsigned rs();                  // regime size in bits
