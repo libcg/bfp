@@ -28,6 +28,13 @@ bool Posit::isZero()
     return mBits == 0;
 }
 
+bool Posit::isOne()
+{
+    POSIT_UTYPE mask = buildMask(mNbits - 1);
+
+    return ((mBits & mask) == (POSIT_UTYPE)(1 << (mNbits - 2)));
+}
+
 bool Posit::isInf()
 {
     return mBits == (POSIT_UTYPE)(1 << (mNbits - 1));
@@ -127,10 +134,7 @@ Posit Posit::add(Posit& p)
         return *this;
     } else if (neg().eq(p)) {
         return zero();
-    }
-
-    // edge cases
-    if (isInf() && p.isInf()) {
+    } else if (isInf() && p.isInf()) {
         return nan();
     } else if (isInf() || p.isInf()) {
         return inf();
@@ -150,6 +154,19 @@ Posit Posit::sub(Posit& p)
 
 Posit Posit::mul(Posit& p)
 {
+    // fast exit
+    if (isZero()) {
+        return (p.isInf() ? nan() : zero());
+    } else if (p.isZero()) {
+        return (isInf() ? nan() : zero());
+    } else if (isOne()) {
+        return (isNeg() ? p.neg() : p);
+    } else if (p.isOne()) {
+        return (p.isNeg() ? neg() : *this);
+    } else if (isInf() || p.isInf()) {
+        return inf();
+    }
+
     // TODO implement
     return *this;
 }

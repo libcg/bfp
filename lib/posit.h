@@ -23,6 +23,7 @@ public:
     Posit(unsigned nbits, unsigned es);
 
     bool isZero();                  // check for 0
+    bool isOne();                   // check for +/- 1
     bool isInf();                   // check for +/- infinity
     bool isNeg();                   // check for negative
     bool isNan();                   // check for NaN
