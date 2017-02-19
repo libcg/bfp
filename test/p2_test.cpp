@@ -7,6 +7,27 @@
 #include "CuTest.h"
 #include "posit.h"
 
+#define TEST_OP2(op)                                                           \
+    Posit a = Posit(2, 0);                                                     \
+    Posit b = Posit(2, 0);                                                     \
+                                                                               \
+    for (int i = 0; i < 4; i++) {                                              \
+        a.setBits(i);                                                          \
+        for (int j = 0; j < 4; j++) {                                          \
+            b.setBits(j);                                                      \
+                                                                               \
+            Posit c = a.op(b);                                                 \
+                                                                               \
+            if (op ## _table[i][j] == -1) {                                    \
+                CuAssertTrue(tc, c.isNan());                                   \
+            } else {                                                           \
+                CuAssertTrue(tc, !c.isNan());                                  \
+                CuAssertTrue(tc, c.getBits() ==                                \
+                                 (POSIT_UTYPE)op ## _table[j][i]);             \
+            }                                                                  \
+        }                                                                      \
+    }
+
 static POSIT_STYPE add_table[4][4] = {
 //       0     1   inf    -1
     { 0b00, 0b01, 0b10, 0b11 }, // 0
@@ -62,90 +83,22 @@ static void TestP2Zero(CuTest* tc)
 
 static void TestP2Add(CuTest* tc)
 {
-    Posit a = Posit(2, 0);
-    Posit b = Posit(2, 0);
-
-    for (int i = 0; i < 4; i++) {
-        a.setBits(i);
-        for (int j = 0; j < 4; j++) {
-            b.setBits(j);
-
-            Posit c = a.add(b);
-
-            if (add_table[i][j] == -1) {
-                CuAssertTrue(tc, c.isNan());
-            } else {
-                CuAssertTrue(tc, !c.isNan());
-                CuAssertTrue(tc, c.getBits() == (POSIT_UTYPE)add_table[j][i]);
-            }
-        }
-    }
+    TEST_OP2(add)
 }
 
 static void TestP2Sub(CuTest* tc)
 {
-    Posit a = Posit(2, 0);
-    Posit b = Posit(2, 0);
-
-    for (int i = 0; i < 4; i++) {
-        a.setBits(i);
-        for (int j = 0; j < 4; j++) {
-            b.setBits(j);
-
-            Posit c = a.sub(b);
-
-            if (sub_table[i][j] == -1) {
-                CuAssertTrue(tc, c.isNan());
-            } else {
-                CuAssertTrue(tc, !c.isNan());
-                CuAssertTrue(tc, c.getBits() == (POSIT_UTYPE)sub_table[j][i]);
-            }
-        }
-    }
+    TEST_OP2(sub)
 }
 
 static void TestP2Mul(CuTest* tc)
 {
-    Posit a = Posit(2, 0);
-    Posit b = Posit(2, 0);
-
-    for (int i = 0; i < 4; i++) {
-        a.setBits(i);
-        for (int j = 0; j < 4; j++) {
-            b.setBits(j);
-
-            Posit c = a.mul(b);
-
-            if (mul_table[i][j] == -1) {
-                CuAssertTrue(tc, c.isNan());
-            } else {
-                CuAssertTrue(tc, !c.isNan());
-                CuAssertTrue(tc, c.getBits() == (POSIT_UTYPE)mul_table[j][i]);
-            }
-        }
-    }
+    TEST_OP2(mul)
 }
 
 static void TestP2Div(CuTest* tc)
 {
-    Posit a = Posit(2, 0);
-    Posit b = Posit(2, 0);
-
-    for (int i = 0; i < 4; i++) {
-        a.setBits(i);
-        for (int j = 0; j < 4; j++) {
-            b.setBits(j);
-
-            Posit c = a.div(b);
-
-            if (div_table[i][j] == -1) {
-                CuAssertTrue(tc, c.isNan());
-            } else {
-                CuAssertTrue(tc, !c.isNan());
-                CuAssertTrue(tc, c.getBits() == (POSIT_UTYPE)div_table[j][i]);
-            }
-        }
-    }
+    TEST_OP2(div)
 }
 
 CuSuite* TestP2GetSuite(void)
