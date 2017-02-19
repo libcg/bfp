@@ -31,6 +31,14 @@ static POSIT_STYPE mul_table[4][4] = {
     { 0b00, 0b11, 0b10, 0b01 }, // -1
 };
 
+static POSIT_STYPE div_table[4][4] = {
+//       0     1   inf    -1
+    {   -1, 0b10, 0b10, 0b10 }, // 0
+    { 0b00, 0b01, 0b10, 0b11 }, // 1
+    { 0b00, 0b00,   -1, 0b00 }, // inf
+    { 0b00, 0b11, 0b10, 0b01 }, // -1
+};
+
 static void TestP2Zero(CuTest* tc)
 {
     Posit p = Posit(2, 0);
@@ -118,6 +126,28 @@ static void TestP2Mul(CuTest* tc)
     }
 }
 
+static void TestP2Div(CuTest* tc)
+{
+    Posit a = Posit(2, 0);
+    Posit b = Posit(2, 0);
+
+    for (int i = 0; i < 4; i++) {
+        a.setBits(i);
+        for (int j = 0; j < 4; j++) {
+            b.setBits(j);
+
+            Posit c = a.div(b);
+
+            if (div_table[i][j] == -1) {
+                CuAssertTrue(tc, c.isNan());
+            } else {
+                CuAssertTrue(tc, !c.isNan());
+                CuAssertTrue(tc, c.getBits() == (POSIT_UTYPE)div_table[j][i]);
+            }
+        }
+    }
+}
+
 CuSuite* TestP2GetSuite(void)
 {
 	CuSuite* suite = CuSuiteNew();
@@ -126,6 +156,7 @@ CuSuite* TestP2GetSuite(void)
 	SUITE_ADD_TEST(suite, TestP2Add);
 	SUITE_ADD_TEST(suite, TestP2Sub);
 	SUITE_ADD_TEST(suite, TestP2Mul);
+	SUITE_ADD_TEST(suite, TestP2Div);
 
 	return suite;
 }
