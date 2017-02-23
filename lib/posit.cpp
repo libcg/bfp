@@ -132,12 +132,12 @@ Posit Posit::add(Posit& p)
         return p;
     } else if (p.isZero()) {
         return *this;
-    } else if (neg().eq(p)) {
-        return zero();
     } else if (isInf() && p.isInf()) {
         return nan();
     } else if (isInf() || p.isInf()) {
         return inf();
+    } else if (neg().eq(p)) {
+        return zero();
     }
 
     // TODO implement
