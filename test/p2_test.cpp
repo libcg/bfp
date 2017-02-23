@@ -5,28 +5,8 @@
 #include <cstring>
 
 #include "CuTest.h"
+#include "test.h"
 #include "posit.h"
-
-#define TEST_OP2(op)                                                           \
-    Posit a = Posit(2, 0);                                                     \
-    Posit b = Posit(2, 0);                                                     \
-                                                                               \
-    for (int i = 0; i < 4; i++) {                                              \
-        a.setBits(i);                                                          \
-        for (int j = 0; j < 4; j++) {                                          \
-            b.setBits(j);                                                      \
-                                                                               \
-            Posit c = a.op(b);                                                 \
-                                                                               \
-            if (op ## _table[j][i] == -1) {                                    \
-                CuAssertTrue(tc, c.isNan());                                   \
-            } else {                                                           \
-                CuAssertTrue(tc, !c.isNan());                                  \
-                CuAssertTrue(tc, c.getBits() ==                                \
-                                 (POSIT_UTYPE)op ## _table[j][i]);             \
-            }                                                                  \
-        }                                                                      \
-    }
 
 static POSIT_STYPE add_table[4][4] = {
 //       0     1   inf    -1
@@ -83,22 +63,22 @@ static void TestP2Zero(CuTest* tc)
 
 static void TestP2Add(CuTest* tc)
 {
-    TEST_OP2(add)
+    TEST_OP2(add, 2, 0)
 }
 
 static void TestP2Sub(CuTest* tc)
 {
-    TEST_OP2(sub)
+    TEST_OP2(sub, 2, 0)
 }
 
 static void TestP2Mul(CuTest* tc)
 {
-    TEST_OP2(mul)
+    TEST_OP2(mul, 2, 0)
 }
 
 static void TestP2Div(CuTest* tc)
 {
-    TEST_OP2(div)
+    TEST_OP2(div, 2, 0)
 }
 
 static void TestP2Is(CuTest* tc)
