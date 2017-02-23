@@ -181,13 +181,13 @@ Posit Posit::div(Posit& p)
 
 bool Posit::eq(Posit& p)
 {
-    return mBits == p.mBits && !isInf();
+    return mBits == p.mBits;
 }
 
 bool Posit::gt(Posit& p)
 {
     if (isInf() || p.isInf()) {
-        // TODO throw exception
+        return false;
     }
 
     // use sign bit of the base type to perform comparison
