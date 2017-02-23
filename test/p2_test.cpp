@@ -18,7 +18,7 @@
                                                                                \
             Posit c = a.op(b);                                                 \
                                                                                \
-            if (op ## _table[i][j] == -1) {                                    \
+            if (op ## _table[j][i] == -1) {                                    \
                 CuAssertTrue(tc, c.isNan());                                   \
             } else {                                                           \
                 CuAssertTrue(tc, !c.isNan());                                  \
