@@ -10,11 +10,16 @@ POSIT_UTYPE Posit::buildMask(unsigned size)
     return mask;
 }
 
-Posit::Posit(unsigned nbits, unsigned es, bool nan) :
-    mBits(0x0),
+Posit::Posit(POSIT_UTYPE bits, unsigned nbits, unsigned es, bool nan) :
+    mBits(bits),
     mNbits(nbits),
     mEs(es),
     mNan(nan)
+{
+}
+
+Posit::Posit(unsigned nbits, unsigned es, bool nan) :
+    Posit(0, nbits, es, nan)
 {
 }
 
@@ -93,6 +98,11 @@ Posit Posit::zero()
     return Posit(mNbits, mEs);
 }
 
+Posit Posit::one()
+{
+    return Posit(1 << (mNbits - 2), mNbits, mEs, false);
+}
+
 Posit Posit::inf()
 {
     return zero().rec();
@@ -165,6 +175,10 @@ Posit Posit::mul(Posit& p)
         return (p.isNeg() ? neg() : *this);
     } else if (isInf() || p.isInf()) {
         return inf();
+    } else if (rec().eq(p)) {
+        return one();
+    } else if (rec().neg().eq(p)) {
+        return one().neg();
     }
 
     // TODO implement

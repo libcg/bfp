@@ -15,9 +15,10 @@ private:
     unsigned mEs;
     bool mNan;
 
-    Posit(unsigned nbits, unsigned es, bool nan);
-
     POSIT_UTYPE buildMask(unsigned size);
+
+    Posit(POSIT_UTYPE bits, unsigned nbits, unsigned es, bool nan);
+    Posit(unsigned nbits, unsigned es, bool nan);
 
 public:
     Posit(unsigned nbits, unsigned es);
@@ -34,6 +35,7 @@ public:
     unsigned fs();                  // fraction size in bits
 
     Posit zero();                   // 0
+    Posit one();                    // 1
     Posit inf();                    // +/-inf
     Posit nan();                    // NaN
 
