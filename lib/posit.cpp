@@ -2,12 +2,7 @@
 
 POSIT_UTYPE Posit::buildMask(unsigned size)
 {
-    POSIT_UTYPE mask = ~(POSIT_UTYPE)0;
-
-    mask <<= POSIT_SIZE - size;
-    mask >>= POSIT_SIZE - size;
-
-    return mask;
+    return POSIT_MASK << (POSIT_SIZE - size);
 }
 
 Posit::Posit(POSIT_UTYPE bits, unsigned nbits, unsigned es, bool nan) :
@@ -30,24 +25,22 @@ Posit::Posit(unsigned nbits, unsigned es) :
 
 bool Posit::isZero()
 {
-    return mBits == 0;
+    return mBits == POSIT_ZERO;
 }
 
 bool Posit::isOne()
 {
-    POSIT_UTYPE mask = buildMask(mNbits - 1);
-
-    return ((mBits & mask) == (POSIT_UTYPE)(1 << (mNbits - 2)));
+    return mBits == POSIT_ONE || (mBits == (POSIT_ONE | POSIT_NEG));
 }
 
 bool Posit::isInf()
 {
-    return mBits == (POSIT_UTYPE)(1 << (mNbits - 1));
+    return mBits == POSIT_INF;
 }
 
 bool Posit::isNeg()
 {
-    return (mBits & (1 << (mNbits - 1))) && !isInf();
+    return mBits != POSIT_INF && (mBits & POSIT_NEG);
 }
 
 bool Posit::isNan()
@@ -66,7 +59,7 @@ unsigned Posit::rs()
     unsigned rs = 0;
 
     // find a bit that changes, ignoring sign bit
-    for (signed i = mNbits - 2; i >= 0; i--) {
+    for (signed i = POSIT_SIZE - 2; i >= POSIT_SIZE - mNbits; i--) {
         bool bit = (mBits >> i) & 1;
         rs++;
 
@@ -95,17 +88,17 @@ unsigned Posit::fs()
 
 Posit Posit::zero()
 {
-    return Posit(mNbits, mEs);
+    return Posit(POSIT_ZERO, mNbits, mEs, false);
 }
 
 Posit Posit::one()
 {
-    return Posit(1 << (mNbits - 2), mNbits, mEs, false);
+    return Posit(POSIT_ONE, mNbits, mEs, false);
 }
 
 Posit Posit::inf()
 {
-    return zero().rec();
+    return Posit(POSIT_INF, mNbits, mEs, false);
 }
 
 Posit Posit::nan()
@@ -119,7 +112,7 @@ Posit Posit::neg()
     POSIT_UTYPE mask = buildMask(mNbits);
 
     // reverse all bits and add one
-    p.mBits = ((mBits ^ mask) + 1) & mask;
+    p.mBits = ((mBits ^ POSIT_MASK) + 1) & mask;
 
     return p;
 }
@@ -130,7 +123,7 @@ Posit Posit::rec()
     POSIT_UTYPE mask = buildMask(mNbits);
 
     // reverse all bits but the first one and add one
-    p.mBits = ((mBits ^ (mask >> 1)) + 1) & mask;
+    p.mBits = ((mBits ^ (POSIT_MASK >> 1)) + 1) & mask;
 
     return p;
 }
@@ -204,11 +197,7 @@ bool Posit::gt(Posit& p)
         return false;
     }
 
-    // use sign bit of the base type to perform comparison
-    POSIT_STYPE xbits = mBits << (POSIT_SIZE - mNbits);
-    POSIT_STYPE pbits = p.mBits << (POSIT_SIZE - mNbits);
-
-    return xbits > pbits;
+    return mBits > p.mBits;
 }
 
 bool Posit::ge(Posit& p)
@@ -272,33 +261,33 @@ void Posit::get(std::string& n)
 
 void Posit::setBits(POSIT_UTYPE bits)
 {
-    mBits = bits;
+    mBits = bits << (POSIT_SIZE - mNbits);
 }
 
 POSIT_UTYPE Posit::getBits()
 {
-    return mBits;
+    return mBits >> (POSIT_SIZE - mNbits);
 }
 
 void Posit::print()
 {
-    Posit p = isNeg() ? neg() : *this;
+    Posit p = isNeg() || isInf() ? neg() : *this;
 
     printf("{%d, %d} ", mNbits, mEs);
 
-    for (signed i = mNbits - 1; i >= 0; i--) {
+    for (signed i = POSIT_SIZE - 1; i >= POSIT_SIZE - mNbits; i--) {
         printf("%d", (mBits >> i) & 1);
     }
 
     printf(" -> ");
     printf(isNeg() || isInf() ? "-" : "+");
 
-    for (signed i = mNbits - 2; i >= 0; i--) {
+    for (signed i = POSIT_SIZE - 2; i >= POSIT_SIZE - mNbits; i--) {
         printf("%d", (p.mBits >> i) & 1);
 
-        if (i > 0 &&
-            (((unsigned)i == (mNbits - 1 - p.rs())) ||
-             ((unsigned)i == (mNbits - 1 - p.rs() - mEs)))) {
+        if (i != POSIT_SIZE - mNbits &&
+            (((unsigned)i == (POSIT_SIZE - 1 - p.rs())) ||
+             ((unsigned)i == (POSIT_SIZE - 1 - p.rs() - mEs)))) {
             printf(" ");
         }
     }

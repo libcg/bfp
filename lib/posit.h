@@ -7,6 +7,11 @@
 #define POSIT_UTYPE     uint32_t
 #define POSIT_STYPE     int32_t
 #define POSIT_SIZE      (8 * sizeof(POSIT_UTYPE))
+#define POSIT_ZERO      (POSIT_UTYPE)0x00000000
+#define POSIT_ONE       (POSIT_UTYPE)0x40000000
+#define POSIT_NEG       (POSIT_UTYPE)0x80000000
+#define POSIT_INF       (POSIT_UTYPE)0x80000000
+#define POSIT_MASK      (POSIT_UTYPE)0xFFFFFFFF
 
 class Posit {
 private:
