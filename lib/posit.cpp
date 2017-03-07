@@ -30,7 +30,7 @@ bool Posit::isZero()
 
 bool Posit::isOne()
 {
-    return mBits == POSIT_ONE || (mBits == (POSIT_ONE | POSIT_NEG));
+    return mBits == POSIT_ONE || mBits == POSIT_MONE;
 }
 
 bool Posit::isInf()
@@ -40,7 +40,7 @@ bool Posit::isInf()
 
 bool Posit::isNeg()
 {
-    return mBits != POSIT_INF && (mBits & POSIT_NEG);
+    return (POSIT_STYPE)mBits < 0 && mBits != POSIT_INF;
 }
 
 bool Posit::isNan()
