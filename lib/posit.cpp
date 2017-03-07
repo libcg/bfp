@@ -91,6 +91,38 @@ unsigned Posit::useed()
     return 1 << (1 << mEs);
 }
 
+signed Posit::regime()
+{
+    POSIT_UTYPE bits = (isNeg() ? neg().mBits : mBits) << 1;
+    POSIT_UTYPE himask = 1 << (POSIT_SIZE - 1);
+    signed r = 0;
+
+    // out of bounds regime for error handling
+    if (isZero()) {
+        return -mNbits + 1;
+    } else if (isInf()) {
+        return mNbits - 1;
+    }
+
+    if (bits & himask) {    // >0
+        while (1) {
+            bits <<= 1;
+            if (!(bits & himask))
+                break;
+            r++;
+        }
+    } else {                // <=0
+        while (1) {
+            bits <<= 1;
+            r--;
+            if (bits & himask)
+                break;
+        }
+    }
+
+    return r;
+}
+
 Posit Posit::zero()
 {
     return Posit(POSIT_ZERO, mNbits, mEs, false);
@@ -284,7 +316,7 @@ void Posit::print()
         printf("%d", (mBits >> i) & 1);
     }
 
-    printf(" -> ");
+    printf(" (%d) -> ", regime());
     printf(isNeg() || isInf() ? "-" : "+");
 
     for (signed i = POSIT_SIZE - 2; i >= POSIT_SIZE - mNbits; i--) {
