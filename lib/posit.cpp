@@ -86,6 +86,11 @@ unsigned Posit::fs()
     return mNbits - 1 - rs() - es();
 }
 
+unsigned Posit::useed()
+{
+    return 1 << (1 << mEs);
+}
+
 Posit Posit::zero()
 {
     return Posit(POSIT_ZERO, mNbits, mEs, false);

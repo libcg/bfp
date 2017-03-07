@@ -38,6 +38,7 @@ public:
     unsigned rs();                  // regime size in bits
     unsigned es();                  // exponent size in bits
     unsigned fs();                  // fraction size in bits
+    unsigned useed();               // value at 45°
 
     Posit zero();                   // 0
     Posit one();                    // 1
