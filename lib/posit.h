@@ -67,10 +67,10 @@ public:
     void set(double n);             // x = n
     void set(std::string& n);       // x = n
 
-    void get(int& n);               // n = x
-    void get(float& n);             // n = x
-    void get(double& n);            // n = x
-    void get(std::string& n);       // n = x
+    int getInt();                   // n = x
+    float getFloat();               // n = x
+    double getDouble();             // n = x
+    std::string getString();        // n = x
 
     // debug
     void setBits(POSIT_UTYPE bits);

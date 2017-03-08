@@ -1,5 +1,11 @@
 #include "posit.h"
 
+#include <cmath>
+#include <sstream>
+
+#define POW2(n) \
+    (1 << n)
+
 POSIT_UTYPE Posit::buildMask(unsigned size)
 {
     return POSIT_MASK << (POSIT_SIZE - size);
@@ -88,7 +94,7 @@ unsigned Posit::fs()
 
 unsigned Posit::useed()
 {
-    return 1 << (1 << mEs);
+    return POW2(POW2(mEs));
 }
 
 signed Posit::regime()
@@ -286,28 +292,50 @@ void Posit::set(std::string& n)
     // TODO implement
 }
 
-void Posit::get(int& n)
+int Posit::getInt()
 {
-    // TODO implement
-    n = 0;
+    return (int)getFloat();
 }
 
-void Posit::get(float& n)
+float Posit::getFloat()
 {
-    // TODO implement
-    n = 0.f;
+    if (isZero()) {
+        return 0.f;
+    } else if (isInf()) {
+        return 1.f / 0.f;
+    }
+
+    Posit p = (isNeg() ? neg() : *this);
+
+    return (isNeg() ? -1 : 1) *
+           powf(p.useed(), p.regime()) *
+           POW2(p.exponent()) *
+           (1 + (float)p.fraction() / POW2(p.fs()));
 }
 
-void Posit::get(double& n)
+double Posit::getDouble()
 {
-    // TODO implement
-    n = 0.;
+    if (isZero()) {
+        return 0.0;
+    } else if (isInf()) {
+        return 1.0 / 0.0;
+    }
+
+    Posit p = (isNeg() ? neg() : *this);
+
+    return (isNeg() ? -1 : 1) *
+           pow(p.useed(), p.regime()) *
+           POW2(p.exponent()) *
+           (1 + (double)p.fraction() / POW2(p.fs()));
 }
 
-void Posit::get(std::string& n)
+std::string Posit::getString()
 {
-    // TODO implement
-    n = "0";
+    std::ostringstream strs;
+
+    strs << getDouble();
+
+    return strs.str();
 }
 
 void Posit::setBits(POSIT_UTYPE bits)
@@ -343,5 +371,5 @@ void Posit::print()
         }
     }
 
-    printf("\n");
+    printf(" = %lg\n", getDouble());
 }
