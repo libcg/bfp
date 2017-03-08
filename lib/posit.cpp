@@ -294,7 +294,7 @@ void Posit::set(std::string& n)
 
 int Posit::getInt()
 {
-    return (int)getFloat();
+    return (int)roundf(getFloat());
 }
 
 float Posit::getFloat()
