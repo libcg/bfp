@@ -1,7 +1,6 @@
 #ifndef __POSIT_H
 #define __POSIT_H
 
-#include <string>
 #include <cstdint>
 
 #define POSIT_UTYPE     uint32_t
@@ -65,12 +64,10 @@ public:
     void set(int n);                // x = n
     void set(float n);              // x = n
     void set(double n);             // x = n
-    void set(std::string& n);       // x = n
 
     int getInt();                   // n = x
     float getFloat();               // n = x
     double getDouble();             // n = x
-    std::string getString();        // n = x
 
     // debug
     void setBits(POSIT_UTYPE bits);

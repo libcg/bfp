@@ -1,7 +1,7 @@
 #include "posit.h"
 
+#include <cstdio>
 #include <cmath>
-#include <sstream>
 
 #define POW2(n) \
     (1 << n)
@@ -287,11 +287,6 @@ void Posit::set(double n)
     // TODO implement
 }
 
-void Posit::set(std::string& n)
-{
-    // TODO implement
-}
-
 int Posit::getInt()
 {
     return (int)roundf(getFloat());
@@ -327,15 +322,6 @@ double Posit::getDouble()
            pow(p.useed(), p.regime()) *
            POW2(p.exponent()) *
            (1 + (double)p.fraction() / POW2(p.fs()));
-}
-
-std::string Posit::getString()
-{
-    std::ostringstream strs;
-
-    strs << getDouble();
-
-    return strs.str();
 }
 
 void Posit::setBits(POSIT_UTYPE bits)
