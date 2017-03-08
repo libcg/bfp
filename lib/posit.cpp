@@ -65,7 +65,7 @@ unsigned Posit::rs()
     unsigned rs = 0;
 
     // find a bit that changes, ignoring sign bit
-    for (signed i = POSIT_SIZE - 2; i >= POSIT_SIZE - mNbits; i--) {
+    for (signed i = POSIT_SIZE - 2; i >= (signed)(POSIT_SIZE - mNbits); i--) {
         bool bit = (mBits >> i) & 1;
         rs++;
 
@@ -340,17 +340,17 @@ void Posit::print()
 
     printf("{%d, %d} ", mNbits, mEs);
 
-    for (signed i = POSIT_SIZE - 1; i >= POSIT_SIZE - mNbits; i--) {
+    for (signed i = POSIT_SIZE - 1; i >= (signed)(POSIT_SIZE - mNbits); i--) {
         printf("%d", (mBits >> i) & 1);
     }
 
     printf(" (%d) -> ", regime());
     printf(isNeg() || isInf() ? "-" : "+");
 
-    for (signed i = POSIT_SIZE - 2; i >= POSIT_SIZE - mNbits; i--) {
+    for (signed i = POSIT_SIZE - 2; i >= (signed)(POSIT_SIZE - mNbits); i--) {
         printf("%d", (p.mBits >> i) & 1);
 
-        if (i != POSIT_SIZE - mNbits &&
+        if (i != (signed)(POSIT_SIZE - mNbits) &&
             (((unsigned)i == (POSIT_SIZE - 1 - p.rs())) ||
              ((unsigned)i == (POSIT_SIZE - 1 - p.rs() - mEs)))) {
             printf(" ");
