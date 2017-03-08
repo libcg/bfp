@@ -123,6 +123,20 @@ signed Posit::regime()
     return r;
 }
 
+POSIT_UTYPE Posit::exponent()
+{
+    POSIT_UTYPE expBits = (mBits & (buildMask(mEs) >> (1 + rs())));
+
+    return expBits >> (POSIT_SIZE - mNbits + fs());
+}
+
+POSIT_UTYPE Posit::fraction()
+{
+    POSIT_UTYPE fracBits = (mBits & (buildMask(fs()) >> (1 + rs() + es())));
+
+    return fracBits >> (POSIT_SIZE - mNbits);
+}
+
 Posit Posit::zero()
 {
     return Posit(POSIT_ZERO, mNbits, mEs, false);

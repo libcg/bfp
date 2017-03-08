@@ -40,6 +40,8 @@ public:
     unsigned fs();                  // fraction size in bits
     unsigned useed();               // value at 45°
     signed regime();                // regime rank
+    POSIT_UTYPE exponent();         // exponent value
+    POSIT_UTYPE fraction();         // fraction value
 
     Posit zero();                   // 0
     Posit one();                    // 1
