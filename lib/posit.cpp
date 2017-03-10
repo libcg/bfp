@@ -3,6 +3,11 @@
 #include <cstdio>
 #include <cmath>
 
+#ifdef __GNUC__
+#define CLZ(n) \
+    __builtin_clz(n)
+#endif
+
 #define POW2(n) \
     (1 << n)
 
@@ -61,22 +66,11 @@ unsigned Posit::nbits()
 
 unsigned Posit::rs()
 {
-    signed lastBit = -1;
-    unsigned rs = 0;
+    unsigned lz = CLZ(mBits << 1);
+    unsigned lo = CLZ(~mBits << 1);
+    unsigned rs = (lz > lo ? lz : lo) + 1;
 
-    // find a bit that changes, ignoring sign bit
-    for (signed i = POSIT_SIZE - 2; i >= (signed)(POSIT_SIZE - mNbits); i--) {
-        bool bit = (mBits >> i) & 1;
-        rs++;
-
-        if (bit != lastBit && lastBit >= 0) {
-            break;
-        }
-
-        lastBit = bit;
-    }
-
-    return rs;
+    return rs < mNbits - 1 ?  rs : mNbits - 1;
 }
 
 unsigned Posit::es()
