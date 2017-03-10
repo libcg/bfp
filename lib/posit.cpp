@@ -98,13 +98,6 @@ unsigned Posit::useed()
 
 signed Posit::regime()
 {
-    // out of bounds regime for error handling
-    if (isZero()) {
-        return -mNbits + 1;
-    } else if (isInf()) {
-        return mNbits - 1;
-    }
-
     POSIT_UTYPE bits = isNeg() ? neg().mBits : mBits;
     unsigned lz = CLZ(bits << ss());
     unsigned lo = CLZ(~bits << ss());
