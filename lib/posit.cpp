@@ -121,7 +121,7 @@ POSIT_UTYPE Posit::exponent()
 
 POSIT_UTYPE Posit::fraction()
 {
-    POSIT_UTYPE fracBits = (mBits & (buildMask(fs()) >> (ss() + rs() + es())));
+    POSIT_UTYPE fracBits = (mBits & (buildMask(fs()) >> (ss() + rs() + mEs)));
 
     return fracBits >> (POSIT_SIZE - mNbits);
 }
