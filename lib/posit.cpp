@@ -98,10 +98,6 @@ unsigned Posit::useed()
 
 signed Posit::regime()
 {
-    POSIT_UTYPE bits = (isNeg() ? neg().mBits : mBits) << ss();
-    POSIT_UTYPE himask = 1 << (POSIT_SIZE - 1);
-    signed r = 0;
-
     // out of bounds regime for error handling
     if (isZero()) {
         return -mNbits + 1;
@@ -109,23 +105,11 @@ signed Posit::regime()
         return mNbits - 1;
     }
 
-    if (bits & himask) {    // >0
-        while (1) {
-            bits <<= 1;
-            if (!(bits & himask))
-                break;
-            r++;
-        }
-    } else {                // <=0
-        while (1) {
-            bits <<= 1;
-            r--;
-            if (bits & himask)
-                break;
-        }
-    }
+    POSIT_UTYPE bits = isNeg() ? neg().mBits : mBits;
+    unsigned lz = CLZ(bits << ss());
+    unsigned lo = CLZ(~bits << ss());
 
-    return r;
+    return lo > lz ? lo - 1 : -lz;
 }
 
 POSIT_UTYPE Posit::exponent()
