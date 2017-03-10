@@ -34,6 +34,7 @@ public:
     bool isNan();                   // check for NaN
 
     unsigned nbits();               // size in bits
+    unsigned ss();                  // sign size in bits
     unsigned rs();                  // regime size in bits
     unsigned es();                  // exponent size in bits
     unsigned fs();                  // fraction size in bits

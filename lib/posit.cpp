@@ -64,18 +64,23 @@ unsigned Posit::nbits()
     return mNbits;
 }
 
+unsigned Posit::ss()
+{
+    return 1;
+}
+
 unsigned Posit::rs()
 {
-    unsigned lz = CLZ(mBits << 1);
-    unsigned lo = CLZ(~mBits << 1);
+    unsigned lz = CLZ(mBits << ss());
+    unsigned lo = CLZ(~mBits << ss());
     unsigned rs = (lz > lo ? lz : lo) + 1;
 
-    return rs < mNbits - 1 ?  rs : mNbits - 1;
+    return rs < mNbits - ss() ?  rs : mNbits - ss();
 }
 
 unsigned Posit::es()
 {
-    unsigned efs = mNbits - 1 - rs();
+    unsigned efs = mNbits - ss() - rs();
     unsigned es = mEs < efs ? mEs : efs;
 
     return (es >= 0 ? es : 0);
@@ -83,7 +88,7 @@ unsigned Posit::es()
 
 unsigned Posit::fs()
 {
-    return mNbits - 1 - rs() - es();
+    return mNbits - ss() - rs() - es();
 }
 
 unsigned Posit::useed()
@@ -93,7 +98,7 @@ unsigned Posit::useed()
 
 signed Posit::regime()
 {
-    POSIT_UTYPE bits = (isNeg() ? neg().mBits : mBits) << 1;
+    POSIT_UTYPE bits = (isNeg() ? neg().mBits : mBits) << ss();
     POSIT_UTYPE himask = 1 << (POSIT_SIZE - 1);
     signed r = 0;
 
@@ -125,14 +130,14 @@ signed Posit::regime()
 
 POSIT_UTYPE Posit::exponent()
 {
-    POSIT_UTYPE expBits = (mBits & (buildMask(mEs) >> (1 + rs())));
+    POSIT_UTYPE expBits = (mBits & (buildMask(mEs) >> (ss() + rs())));
 
     return expBits >> (POSIT_SIZE - mNbits + fs());
 }
 
 POSIT_UTYPE Posit::fraction()
 {
-    POSIT_UTYPE fracBits = (mBits & (buildMask(fs()) >> (1 + rs() + es())));
+    POSIT_UTYPE fracBits = (mBits & (buildMask(fs()) >> (ss() + rs() + es())));
 
     return fracBits >> (POSIT_SIZE - mNbits);
 }
@@ -174,7 +179,7 @@ Posit Posit::rec()
     POSIT_UTYPE mask = buildMask(mNbits);
 
     // reverse all bits but the first one and add one
-    p.mBits = ((mBits ^ (POSIT_MASK >> 1)) + 1) & mask;
+    p.mBits = ((mBits ^ (POSIT_MASK >> ss())) + 1) & mask;
 
     return p;
 }
@@ -341,12 +346,13 @@ void Posit::print()
     printf(" (%d) -> ", regime());
     printf(isNeg() || isInf() ? "-" : "+");
 
-    for (signed i = POSIT_SIZE - 2; i >= (signed)(POSIT_SIZE - mNbits); i--) {
+    for (signed i = POSIT_SIZE - ss() - 1;
+         i >= (signed)(POSIT_SIZE - mNbits); i--) {
         printf("%d", (p.mBits >> i) & 1);
 
         if (i != (signed)(POSIT_SIZE - mNbits) &&
-            (((unsigned)i == (POSIT_SIZE - 1 - p.rs())) ||
-             ((unsigned)i == (POSIT_SIZE - 1 - p.rs() - mEs)))) {
+            (((unsigned)i == (POSIT_SIZE - ss() - p.rs())) ||
+             ((unsigned)i == (POSIT_SIZE - ss() - p.rs() - mEs)))) {
             printf(" ");
         }
     }
