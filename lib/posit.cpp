@@ -9,7 +9,13 @@
 #endif
 
 #define POW2(n) \
-    (1 << n)
+    (1 << (n))
+
+#define MIN(a, b) \
+    ((a) < (b) ? (a) : (b))
+
+#define MAX(a, b) \
+    ((a) > (b) ? (a) : (b))
 
 POSIT_UTYPE Posit::buildMask(unsigned size)
 {
@@ -75,7 +81,7 @@ unsigned Posit::rs()
     unsigned lo = CLZ(~mBits << ss());
     unsigned rs = (lz > lo ? lz : lo) + 1;
 
-    return rs < mNbits - ss() ?  rs : mNbits - ss();
+    return MIN(rs, mNbits - ss());
 }
 
 unsigned Posit::es()
@@ -83,7 +89,7 @@ unsigned Posit::es()
     unsigned efs = mNbits - ss() - rs();
     unsigned es = mEs < efs ? mEs : efs;
 
-    return (es >= 0 ? es : 0);
+    return MAX(es, 0);
 }
 
 unsigned Posit::fs()
@@ -102,7 +108,10 @@ signed Posit::regime()
     unsigned lz = CLZ(bits << ss());
     unsigned lo = CLZ(~bits << ss());
 
-    return lo > lz ? lo - 1 : -lz;
+    if (lz == 0)
+        return lo - 1;
+    else
+        return -lz;
 }
 
 POSIT_UTYPE Posit::exponent()
