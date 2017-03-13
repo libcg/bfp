@@ -20,6 +20,7 @@ private:
     bool mNan;
 
     POSIT_UTYPE buildMask(unsigned size);
+    POSIT_UTYPE buildBits(bool neg, signed reg, POSIT_UTYPE exp);
 
     Posit(POSIT_UTYPE bits, unsigned nbits, unsigned es, bool nan);
     Posit(unsigned nbits, unsigned es, bool nan);

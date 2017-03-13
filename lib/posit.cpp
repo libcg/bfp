@@ -22,6 +22,30 @@ POSIT_UTYPE Posit::buildMask(unsigned size)
     return POSIT_MASK << (POSIT_SIZE - size);
 }
 
+POSIT_UTYPE Posit::buildBits(bool neg, signed reg, POSIT_UTYPE exp)
+{
+    POSIT_UTYPE bits;
+    POSIT_UTYPE regBits;
+    POSIT_UTYPE expBits;
+    unsigned rs = MAX(-reg + 1, reg + 2);
+
+    if (reg < 0) {
+        regBits = 1 << (POSIT_SIZE - 1 + reg);
+    } else {
+        regBits = buildMask(reg + 1);
+    }
+    expBits = (exp << (POSIT_SIZE - mEs)) & buildMask(mEs);
+
+    bits  = regBits >> ss();
+    bits |= expBits >> (ss() + rs);
+
+    if (neg) {
+        bits = (bits ^ POSIT_MASK) + 1;
+    }
+
+    return bits & buildMask(mNbits);
+}
+
 Posit::Posit(POSIT_UTYPE bits, unsigned nbits, unsigned es, bool nan) :
     mBits(bits),
     mNbits(nbits),
@@ -216,8 +240,19 @@ Posit Posit::mul(Posit& p)
         return one().neg();
     }
 
-    // TODO implement
-    return *this;
+    signed xfexp = POW2(mEs) * regime() + exponent();
+    signed pfexp = POW2(mEs) * p.regime() + p.exponent();
+
+    // clip exponent to avoid underflow and overflow
+    signed rminfexp = POW2(mEs) * (-mNbits + 2);
+    signed rmaxfexp = POW2(mEs) * (mNbits - 2);
+    signed rfexp = MAX(rminfexp, MIN(rmaxfexp, xfexp + pfexp));
+
+    bool rsign = isNeg() ^ p.isNeg();
+    signed rreg = rfexp / POW2(mEs);
+    unsigned rexp = rfexp - POW2(mEs) * rreg;
+
+    return Posit(buildBits(rsign, rreg, rexp), mNbits, mEs, false);
 }
 
 Posit Posit::div(Posit& p)
