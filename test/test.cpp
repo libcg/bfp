@@ -3,6 +3,7 @@
 #include "CuTest.h"
 
 CuSuite* TestP2GetSuite();
+CuSuite* TestP3GetSuite();
 
 void RunAllTests(void)
 {
@@ -10,6 +11,7 @@ void RunAllTests(void)
     CuSuite *suite = CuSuiteNew();
 
     CuSuiteAddSuite(suite, TestP2GetSuite());
+    CuSuiteAddSuite(suite, TestP3GetSuite());
 
     CuSuiteRun(suite);
     CuSuiteSummary(suite, output);
