@@ -103,22 +103,19 @@ unsigned Posit::rs()
 {
     unsigned lz = CLZ(mBits << ss());
     unsigned lo = CLZ(~mBits << ss());
-    unsigned rs = (lz > lo ? lz : lo) + 1;
+    unsigned rs = MAX(lz, lo) + 1;
 
     return MIN(rs, mNbits - ss());
 }
 
 unsigned Posit::es()
 {
-    unsigned efs = mNbits - ss() - rs();
-    unsigned es = mEs < efs ? mEs : efs;
-
-    return MAX(es, 0);
+    return MIN(MAX(mNbits - ss() - rs(), 0), mEs);
 }
 
 unsigned Posit::fs()
 {
-    return mNbits - ss() - rs() - es();
+    return MAX(mNbits - ss() - rs() - mEs, 0);
 }
 
 unsigned Posit::useed()
@@ -246,7 +243,7 @@ Posit Posit::mul(Posit& p)
     // clip exponent to avoid underflow and overflow
     signed rminfexp = POW2(mEs) * (-mNbits + 2);
     signed rmaxfexp = POW2(mEs) * (mNbits - 2);
-    signed rfexp = MAX(rminfexp, MIN(rmaxfexp, xfexp + pfexp));
+    signed rfexp = MIN(MAX(xfexp + pfexp, rminfexp), rmaxfexp);
 
     bool rsign = isNeg() ^ p.isNeg();
     signed rreg = rfexp / POW2(mEs);
@@ -323,8 +320,7 @@ float Posit::getFloat()
     Posit p = (isNeg() ? neg() : *this);
 
     return (isNeg() ? -1 : 1) *
-           powf(p.useed(), p.regime()) *
-           POW2(p.exponent()) *
+           powf(2, POW2(mEs) * p.regime() + (signed)p.exponent()) *
            (1 + (float)p.fraction() / POW2(p.fs()));
 }
 
@@ -339,8 +335,7 @@ double Posit::getDouble()
     Posit p = (isNeg() ? neg() : *this);
 
     return (isNeg() ? -1 : 1) *
-           pow(p.useed(), p.regime()) *
-           POW2(p.exponent()) *
+           pow(2, POW2(mEs) * p.regime() + (signed)p.exponent()) *
            (1 + (double)p.fraction() / POW2(p.fs()));
 }
 
