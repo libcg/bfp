@@ -1,6 +1,9 @@
 #ifndef __TEST_H
 #define __TEST_H
 
+#include "CuTest.h"
+#include "posit.h"
+
 #define NAN     (-1)
 
 #define TEST_OP2(OP, NBITS, ES)                                                \
@@ -23,5 +26,7 @@
             }                                                                  \
         }                                                                      \
     }
+
+void genDivTable(POSIT_STYPE *div_table, POSIT_STYPE *mul_table, int size);
 
 #endif

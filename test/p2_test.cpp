@@ -4,9 +4,7 @@
 #include <cstdio>
 #include <cstring>
 
-#include "CuTest.h"
 #include "test.h"
-#include "posit.h"
 
 static POSIT_STYPE add_table[4][4] = {
 //       0     1   inf    -1
@@ -24,19 +22,12 @@ static POSIT_STYPE sub_table[4][4] = {
     { 0b01, 0b01, 0b10, 0b00 }, // -1
 };
 
+static POSIT_STYPE div_table[4][4];
 static POSIT_STYPE mul_table[4][4] = {
 //       0     1   inf    -1
     { 0b00, 0b00,  NAN, 0b00 }, // 0
     { 0b00, 0b01, 0b10, 0b11 }, // 1
     {  NAN, 0b10, 0b10, 0b10 }, // inf
-    { 0b00, 0b11, 0b10, 0b01 }, // -1
-};
-
-static POSIT_STYPE div_table[4][4] = {
-//       0     1   inf    -1
-    {  NAN, 0b10, 0b10, 0b10 }, // 0
-    { 0b00, 0b01, 0b10, 0b11 }, // 1
-    { 0b00, 0b00,  NAN, 0b00 }, // inf
     { 0b00, 0b11, 0b10, 0b01 }, // -1
 };
 
@@ -117,14 +108,16 @@ static void TestP2Is(CuTest* tc)
 
 CuSuite* TestP2GetSuite(void)
 {
-	CuSuite* suite = CuSuiteNew();
+    CuSuite* suite = CuSuiteNew();
 
-	SUITE_ADD_TEST(suite, TestP2Zero);
-	SUITE_ADD_TEST(suite, TestP2Add);
-	SUITE_ADD_TEST(suite, TestP2Sub);
-	SUITE_ADD_TEST(suite, TestP2Mul);
-	SUITE_ADD_TEST(suite, TestP2Div);
-	SUITE_ADD_TEST(suite, TestP2Is);
+    genDivTable(div_table[0], mul_table[0], 4);
 
-	return suite;
+    SUITE_ADD_TEST(suite, TestP2Zero);
+    SUITE_ADD_TEST(suite, TestP2Add);
+    SUITE_ADD_TEST(suite, TestP2Sub);
+    SUITE_ADD_TEST(suite, TestP2Mul);
+    SUITE_ADD_TEST(suite, TestP2Div);
+    SUITE_ADD_TEST(suite, TestP2Is);
+
+    return suite;
 }

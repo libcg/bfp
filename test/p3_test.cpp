@@ -4,10 +4,9 @@
 #include <cstdio>
 #include <cstring>
 
-#include "CuTest.h"
 #include "test.h"
-#include "posit.h"
 
+static POSIT_STYPE div_table[8][8];
 static POSIT_STYPE mul_table[8][8] = {
 //        0    1/4      1      4    inf     -4     -1   -1/4
     { 0b000, 0b000, 0b000, 0b000,   NAN, 0b000, 0b000, 0b000 }, // 0
@@ -25,11 +24,19 @@ static void TestP3Mul(CuTest* tc)
     TEST_OP2(mul, 3, 1)
 }
 
+static void TestP3Div(CuTest* tc)
+{
+    TEST_OP2(div, 3, 1)
+}
+
 CuSuite* TestP3GetSuite(void)
 {
-	CuSuite* suite = CuSuiteNew();
+    CuSuite* suite = CuSuiteNew();
 
-	SUITE_ADD_TEST(suite, TestP3Mul);
+    genDivTable(div_table[0], mul_table[0], 8);
 
-	return suite;
+    SUITE_ADD_TEST(suite, TestP3Mul);
+    SUITE_ADD_TEST(suite, TestP3Div);
+
+    return suite;
 }
