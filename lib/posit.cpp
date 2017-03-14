@@ -22,7 +22,8 @@ POSIT_UTYPE Posit::buildMask(unsigned size)
     return POSIT_MASK << (POSIT_SIZE - size);
 }
 
-POSIT_UTYPE Posit::buildBits(bool neg, signed reg, POSIT_UTYPE exp)
+POSIT_UTYPE Posit::buildBits(bool neg, signed reg, POSIT_UTYPE exp,
+                             POSIT_UTYPE frac)
 {
     POSIT_UTYPE bits;
     POSIT_UTYPE regBits;
@@ -30,20 +31,40 @@ POSIT_UTYPE Posit::buildBits(bool neg, signed reg, POSIT_UTYPE exp)
     unsigned rs = MAX(-reg + 1, reg + 2);
 
     if (reg < 0) {
-        regBits = 1 << (POSIT_SIZE - 1 + reg);
+        regBits = POSIT_MSB >> (-reg);
     } else {
         regBits = buildMask(reg + 1);
     }
     expBits = (exp << (POSIT_SIZE - mEs)) & buildMask(mEs);
 
-    bits  = regBits >> ss();
-    bits |= expBits >> (ss() + rs);
+    bits = frac;
+    bits = expBits | (bits >> mEs);
+    bits = regBits | (bits >> rs);
+    bits = bits >> ss();
 
     if (neg) {
         bits = (bits ^ POSIT_MASK) + 1;
     }
 
     return bits & buildMask(mNbits);
+}
+
+POSIT_UTYPE Posit::mulhi(POSIT_UTYPE a, POSIT_UTYPE b)
+{
+    const unsigned shft = POSIT_SIZE / 2;
+    const POSIT_UTYPE mask = POSIT_MASK >> shft;
+
+    POSIT_UTYPE a_lo = a & mask;
+    POSIT_UTYPE a_hi = a >> shft;
+    POSIT_UTYPE b_lo = b & mask;
+    POSIT_UTYPE b_hi = b >> shft;
+
+    POSIT_UTYPE r_lo = a_lo * b_lo;
+    POSIT_UTYPE r_hi = a_hi * b_lo + (r_lo >> shft);
+    POSIT_UTYPE r_cy = a_lo * b_hi + (r_hi & mask);
+
+    // n-bit int multiply yields twice as many bits, return high part
+    return a_hi * b_hi + (r_hi >> shft) + (r_cy >> shft);
 }
 
 Posit::Posit(POSIT_UTYPE bits, unsigned nbits, unsigned es, bool nan) :
@@ -149,6 +170,12 @@ POSIT_UTYPE Posit::fraction()
     return fracBits >> (POSIT_SIZE - mNbits);
 }
 
+POSIT_UTYPE Posit::lfraction()
+{
+    // left-align bits
+    return mBits << (ss() + rs() + mEs);
+}
+
 Posit Posit::zero()
 {
     return Posit(POSIT_ZERO, mNbits, mEs, false);
@@ -240,16 +267,25 @@ Posit Posit::mul(Posit& p)
     signed xfexp = POW2(mEs) * regime() + exponent();
     signed pfexp = POW2(mEs) * p.regime() + p.exponent();
 
+    // fractions have a hidden bit
+    POSIT_UTYPE xfrac = POSIT_MSB | (lfraction() >> 1);
+    POSIT_UTYPE pfrac = POSIT_MSB | (p.lfraction() >> 1);
+    POSIT_UTYPE mfrac = mulhi(xfrac, pfrac);
+
+    // shift is either 0 or 1
+    signed shift = CLZ(mfrac);
+
     // clip exponent to avoid underflow and overflow
     signed rminfexp = POW2(mEs) * (-mNbits + 2);
     signed rmaxfexp = POW2(mEs) * (mNbits - 2);
-    signed rfexp = MIN(MAX(xfexp + pfexp, rminfexp), rmaxfexp);
+    signed rfexp = MIN(MAX(xfexp + pfexp - shift + 1, rminfexp), rmaxfexp);
 
     bool rsign = isNeg() ^ p.isNeg();
     signed rreg = rfexp / POW2(mEs);
     unsigned rexp = rfexp - POW2(mEs) * rreg;
+    POSIT_UTYPE rfrac = mfrac << (shift + 1);
 
-    return Posit(buildBits(rsign, rreg, rexp), mNbits, mEs, false);
+    return Posit(buildBits(rsign, rreg, rexp, rfrac), mNbits, mEs, false);
 }
 
 Posit Posit::div(Posit& p)

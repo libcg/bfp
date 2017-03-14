@@ -6,11 +6,12 @@
 #define POSIT_UTYPE     uint32_t
 #define POSIT_STYPE     int32_t
 #define POSIT_SIZE      (8 * sizeof(POSIT_UTYPE))
-#define POSIT_ZERO      (POSIT_UTYPE)0x00000000
-#define POSIT_ONE       (POSIT_UTYPE)0x40000000
-#define POSIT_MONE      (POSIT_UTYPE)0xC0000000
-#define POSIT_INF       (POSIT_UTYPE)0x80000000
-#define POSIT_MASK      (POSIT_UTYPE)0xFFFFFFFF
+#define POSIT_ZERO      ((POSIT_UTYPE)0x00000000)
+#define POSIT_ONE       ((POSIT_UTYPE)0x40000000)
+#define POSIT_MONE      ((POSIT_UTYPE)0xC0000000)
+#define POSIT_INF       ((POSIT_UTYPE)0x80000000)
+#define POSIT_MSB       ((POSIT_UTYPE)0x80000000)
+#define POSIT_MASK      ((POSIT_UTYPE)0xFFFFFFFF)
 
 class Posit {
 private:
@@ -20,7 +21,9 @@ private:
     bool mNan;
 
     POSIT_UTYPE buildMask(unsigned size);
-    POSIT_UTYPE buildBits(bool neg, signed reg, POSIT_UTYPE exp);
+    POSIT_UTYPE buildBits(bool neg, signed reg, POSIT_UTYPE exp,
+                          POSIT_UTYPE frac);
+    POSIT_UTYPE mulhi(POSIT_UTYPE a, POSIT_UTYPE b);
 
     Posit(POSIT_UTYPE bits, unsigned nbits, unsigned es, bool nan);
     Posit(unsigned nbits, unsigned es, bool nan);
@@ -43,6 +46,7 @@ public:
     signed regime();                // regime rank
     POSIT_UTYPE exponent();         // exponent value
     POSIT_UTYPE fraction();         // fraction value
+    POSIT_UTYPE lfraction();        // left-aligned fraction value
 
     Posit zero();                   // 0
     Posit one();                    // 1
