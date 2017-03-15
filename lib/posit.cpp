@@ -325,11 +325,6 @@ bool Posit::le(Posit& p)
     return !gt(p);
 }
 
-void Posit::set(int n)
-{
-    // TODO implement
-}
-
 void Posit::set(float n)
 {
     // TODO implement
@@ -338,11 +333,6 @@ void Posit::set(float n)
 void Posit::set(double n)
 {
     // TODO implement
-}
-
-int Posit::getInt()
-{
-    return (int)roundf(getFloat());
 }
 
 float Posit::getFloat()

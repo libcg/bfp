@@ -67,11 +67,9 @@ public:
     bool lt(Posit& p);              // x < p
     bool le(Posit& p);              // x <= p
 
-    void set(int n);                // x = n
     void set(float n);              // x = n
     void set(double n);             // x = n
 
-    int getInt();                   // n = x
     float getFloat();               // n = x
     double getDouble();             // n = x
 
