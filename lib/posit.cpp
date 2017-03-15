@@ -3,6 +3,8 @@
 #include <cstdio>
 #include <cmath>
 
+using namespace std;
+
 #ifdef __GNUC__
 #define CLZ(n) \
     __builtin_clz(n)
@@ -65,6 +67,30 @@ POSIT_UTYPE Posit::mulhi(POSIT_UTYPE a, POSIT_UTYPE b)
 
     // n-bit int multiply yields twice as many bits, return high part
     return a_hi * b_hi + (r_hi >> shft) + (r_cy >> shft);
+}
+
+POSIT_UTYPE Posit::ieeeToBits(uint64_t fbits, unsigned fes, unsigned ffs)
+{
+    int16_t fexp = (fbits >> ffs) & ((1 << fes) - 1);
+    uint64_t ffrac = fbits & ((1LL << ffs) - 1);
+
+    // clip exponent
+    signed rminfexp = POW2(mEs) * (-mNbits + 2);
+    signed rmaxfexp = POW2(mEs) * (mNbits - 2);
+    signed rfexp = MIN(MAX(fexp - POW2(fes - 1) + 1, rminfexp), rmaxfexp);
+
+    bool rsign = fbits >> (fes + ffs);
+    signed rreg = rfexp >> mEs; // floor(rfexp / 2^mEs)
+    unsigned rexp = rfexp - POW2(mEs) * rreg;
+    POSIT_UTYPE rfrac;
+
+    if (ffs <= POSIT_SIZE) {
+        rfrac = ffrac << (POSIT_SIZE - ffs);
+    } else {
+        rfrac = ffrac >> (ffs - POSIT_SIZE);
+    }
+
+    return buildBits(rsign, rreg, rexp, rfrac);
 }
 
 Posit::Posit(POSIT_UTYPE bits, unsigned nbits, unsigned es, bool nan) :
@@ -281,7 +307,7 @@ Posit Posit::mul(Posit& p)
     signed rfexp = MIN(MAX(xfexp + pfexp - shift + 1, rminfexp), rmaxfexp);
 
     bool rsign = isNeg() ^ p.isNeg();
-    signed rreg = rfexp / POW2(mEs);
+    signed rreg = rfexp >> mEs; // floor(rfexp / 2^mEs)
     unsigned rexp = rfexp - POW2(mEs) * rreg;
     POSIT_UTYPE rfrac = mfrac << (shift + 1);
 
@@ -327,12 +353,66 @@ bool Posit::le(Posit& p)
 
 void Posit::set(float n)
 {
-    // TODO implement
+    union {
+        float f;
+        uint32_t bits;
+    };
+
+    switch (fpclassify(n)) {
+    case FP_INFINITE:
+        mBits = POSIT_INF;
+        mNan = false;
+        break;
+    case FP_NAN:
+        mNan = true;
+        break;
+    case FP_ZERO:
+        mBits = POSIT_ZERO;
+        mNan = false;
+        break;
+    case FP_SUBNORMAL:
+        // TODO: support subnormals
+        mBits = POSIT_ZERO;
+        mNan = false;
+        break;
+    case FP_NORMAL:
+        f = n;
+        mBits = ieeeToBits(bits, 8, 23);
+        mNan = false;
+        break;
+    }
 }
 
 void Posit::set(double n)
 {
-    // TODO implement
+    union {
+        double f;
+        uint64_t bits;
+    };
+
+    switch (fpclassify(n)) {
+    case FP_INFINITE:
+        mBits = POSIT_INF;
+        mNan = false;
+        break;
+    case FP_NAN:
+        mNan = true;
+        break;
+    case FP_ZERO:
+        mBits = POSIT_ZERO;
+        mNan = false;
+        break;
+    case FP_SUBNORMAL:
+        // TODO: support subnormals
+        mBits = POSIT_ZERO;
+        mNan = false;
+        break;
+    case FP_NORMAL:
+        f = n;
+        mBits = ieeeToBits(bits, 11, 52);
+        mNan = false;
+        break;
+    }
 }
 
 float Posit::getFloat()
