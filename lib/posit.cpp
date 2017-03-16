@@ -19,18 +19,18 @@ using namespace std;
 #define MAX(a, b) \
     ((a) > (b) ? (a) : (b))
 
-POSIT_UTYPE Posit::buildMask(unsigned size)
+POSIT_UTYPE Posit::buildMask(int size)
 {
     return POSIT_MASK << (POSIT_SIZE - size);
 }
 
-POSIT_UTYPE Posit::buildBits(bool neg, signed reg, POSIT_UTYPE exp,
+POSIT_UTYPE Posit::buildBits(bool neg, int reg, POSIT_UTYPE exp,
                              POSIT_UTYPE frac)
 {
     POSIT_UTYPE bits;
     POSIT_UTYPE regBits;
     POSIT_UTYPE expBits;
-    unsigned rs = MAX(-reg + 1, reg + 2);
+    int rs = MAX(-reg + 1, reg + 2);
 
     if (reg < 0) {
         regBits = POSIT_MSB >> (-reg);
@@ -51,20 +51,20 @@ POSIT_UTYPE Posit::buildBits(bool neg, signed reg, POSIT_UTYPE exp,
     return bits & buildMask(mNbits);
 }
 
-void Posit::fromIeee(uint64_t fbits, unsigned fes, unsigned ffs)
+void Posit::fromIeee(uint64_t fbits, int fes, int ffs)
 {
-    signed fexpbias = POW2(fes - 1) - 1;
+    int fexpbias = POW2(fes - 1) - 1;
     int16_t fexp = (fbits >> ffs) & ((1 << fes) - 1);
     uint64_t ffrac = fbits & ((1ULL << ffs) - 1);
 
     // clip exponent
-    signed rminfexp = POW2(mEs) * (-mNbits + 2);
-    signed rmaxfexp = POW2(mEs) * (mNbits - 2);
-    signed rfexp = MIN(MAX(fexp - fexpbias, rminfexp), rmaxfexp);
+    int rminfexp = POW2(mEs) * (-mNbits + 2);
+    int rmaxfexp = POW2(mEs) * (mNbits - 2);
+    int rfexp = MIN(MAX(fexp - fexpbias, rminfexp), rmaxfexp);
 
     bool rsign = fbits >> (fes + ffs);
-    signed rreg = rfexp >> mEs; // floor(rfexp / 2^mEs)
-    signed rexp = rfexp - POW2(mEs) * rreg;
+    int rreg = rfexp >> mEs; // floor(rfexp / 2^mEs)
+    int rexp = rfexp - POW2(mEs) * rreg;
     POSIT_UTYPE rfrac;
 
     if (ffs <= POSIT_SIZE) {
@@ -76,10 +76,10 @@ void Posit::fromIeee(uint64_t fbits, unsigned fes, unsigned ffs)
     mBits = buildBits(rsign, rreg, rexp, rfrac);
 }
 
-uint64_t Posit::toIeee(unsigned fes, unsigned ffs)
+uint64_t Posit::toIeee(int fes, int ffs)
 {
     uint64_t fbits;
-    signed exp;
+    int exp;
     POSIT_UTYPE frac;
 
     if (isNeg()) {
@@ -91,8 +91,8 @@ uint64_t Posit::toIeee(unsigned fes, unsigned ffs)
         frac = lfraction();
     }
 
-    signed rexpbias = POW2(fes - 1) - 1;
-    signed rexp = MIN(MAX(exp + rexpbias, 1), POW2(fes) - 2);
+    int rexpbias = POW2(fes - 1) - 1;
+    int rexp = MIN(MAX(exp + rexpbias, 1), POW2(fes) - 2);
     uint64_t rfrac;
 
     if (exp + rexpbias < rexp) {
@@ -117,7 +117,7 @@ uint64_t Posit::toIeee(unsigned fes, unsigned ffs)
     return fbits;
 }
 
-Posit::Posit(POSIT_UTYPE bits, unsigned nbits, unsigned es, bool nan) :
+Posit::Posit(POSIT_UTYPE bits, int nbits, int es, bool nan) :
     mBits(bits),
     mNbits(nbits),
     mEs(es),
@@ -125,12 +125,12 @@ Posit::Posit(POSIT_UTYPE bits, unsigned nbits, unsigned es, bool nan) :
 {
 }
 
-Posit::Posit(unsigned nbits, unsigned es, bool nan) :
+Posit::Posit(int nbits, int es, bool nan) :
     Posit(0, nbits, es, nan)
 {
 }
 
-Posit::Posit(unsigned nbits, unsigned es) :
+Posit::Posit(int nbits, int es) :
     Posit(nbits, es, false)
 {
 }
@@ -160,45 +160,45 @@ bool Posit::isNan()
     return mNan;
 }
 
-unsigned Posit::nbits()
+int Posit::nbits()
 {
     return mNbits;
 }
 
-unsigned Posit::ss()
+int Posit::ss()
 {
     return 1;
 }
 
-unsigned Posit::rs()
+int Posit::rs()
 {
-    unsigned lz = CLZ(mBits << ss());
-    unsigned lo = CLZ(~mBits << ss());
-    unsigned rs = MAX(lz, lo) + 1;
+    int lz = CLZ(mBits << ss());
+    int lo = CLZ(~mBits << ss());
+    int rs = MAX(lz, lo) + 1;
 
     return MIN(rs, mNbits - ss());
 }
 
-unsigned Posit::es()
+int Posit::es()
 {
     return MIN(MAX(mNbits - ss() - rs(), 0), mEs);
 }
 
-unsigned Posit::fs()
+int Posit::fs()
 {
     return MAX(mNbits - ss() - rs() - mEs, 0);
 }
 
-unsigned Posit::useed()
+int Posit::useed()
 {
     return POW2(POW2(mEs));
 }
 
-signed Posit::regime()
+int Posit::regime()
 {
     POSIT_UTYPE bits = isNeg() ? neg().mBits : mBits;
-    unsigned lz = CLZ(bits << ss());
-    unsigned lo = CLZ(~bits << ss());
+    int lz = CLZ(bits << ss());
+    int lo = CLZ(~bits << ss());
 
     if (lz == 0)
         return lo - 1;
@@ -310,8 +310,8 @@ Posit Posit::mul(Posit& p)
         return one().neg();
     }
 
-    signed xfexp = POW2(mEs) * regime() + exponent();
-    signed pfexp = POW2(mEs) * p.regime() + p.exponent();
+    int xfexp = POW2(mEs) * regime() + exponent();
+    int pfexp = POW2(mEs) * p.regime() + p.exponent();
 
     // fractions have a hidden bit
     POSIT_UTYPE xfrac = POSIT_MSB | (lfraction() >> 1);
@@ -320,16 +320,16 @@ Posit Posit::mul(Posit& p)
                          (POSIT_LUTYPE)pfrac) >> POSIT_SIZE;
 
     // shift is either 0 or 1
-    signed shift = CLZ(mfrac);
+    int shift = CLZ(mfrac);
 
     // clip exponent to avoid underflow and overflow
-    signed rminfexp = POW2(mEs) * (-mNbits + 2);
-    signed rmaxfexp = POW2(mEs) * (mNbits - 2);
-    signed rfexp = MIN(MAX(xfexp + pfexp - shift + 1, rminfexp), rmaxfexp);
+    int rminfexp = POW2(mEs) * (-mNbits + 2);
+    int rmaxfexp = POW2(mEs) * (mNbits - 2);
+    int rfexp = MIN(MAX(xfexp + pfexp - shift + 1, rminfexp), rmaxfexp);
 
     bool rsign = isNeg() ^ p.isNeg();
-    signed rreg = rfexp >> mEs; // floor(rfexp / 2^mEs)
-    unsigned rexp = rfexp - POW2(mEs) * rreg;
+    int rreg = rfexp >> mEs; // floor(rfexp / 2^mEs)
+    int rexp = rfexp - POW2(mEs) * rreg;
     POSIT_UTYPE rfrac = mfrac << (shift + 1);
 
     return Posit(buildBits(rsign, rreg, rexp, rfrac), mNbits, mEs, false);
@@ -492,20 +492,19 @@ void Posit::print()
 
     printf("{%d, %d} ", mNbits, mEs);
 
-    for (signed i = POSIT_SIZE - 1; i >= (signed)(POSIT_SIZE - mNbits); i--) {
+    for (int i = POSIT_SIZE - 1; i >= POSIT_SIZE - mNbits; i--) {
         printf("%d", (mBits >> i) & 1);
     }
 
     printf(" (%d) -> ", regime());
     printf(isNeg() || isInf() ? "-" : "+");
 
-    for (signed i = POSIT_SIZE - ss() - 1;
-         i >= (signed)(POSIT_SIZE - mNbits); i--) {
+    for (int i = POSIT_SIZE - ss() - 1; i >= POSIT_SIZE - mNbits; i--) {
         printf("%d", (p.mBits >> i) & 1);
 
-        if (i != (signed)(POSIT_SIZE - mNbits) &&
-            (((unsigned)i == (POSIT_SIZE - ss() - p.rs())) ||
-             ((unsigned)i == (POSIT_SIZE - ss() - p.rs() - mEs)))) {
+        if (i != POSIT_SIZE - mNbits &&
+            ((i == POSIT_SIZE - ss() - p.rs()) ||
+             (i == POSIT_SIZE - ss() - p.rs() - mEs))) {
             printf(" ");
         }
     }

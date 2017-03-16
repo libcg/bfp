@@ -6,7 +6,7 @@
 #define POSIT_LUTYPE    uint64_t
 #define POSIT_UTYPE     uint32_t
 #define POSIT_STYPE     int32_t
-#define POSIT_SIZE      (8 * sizeof(POSIT_UTYPE))
+#define POSIT_SIZE      (8 * (int)sizeof(POSIT_UTYPE))
 #define POSIT_ZERO      ((POSIT_UTYPE)0x00000000)
 #define POSIT_ONE       ((POSIT_UTYPE)0x40000000)
 #define POSIT_MONE      ((POSIT_UTYPE)0xC0000000)
@@ -17,21 +17,21 @@
 class Posit {
 private:
     POSIT_UTYPE mBits;
-    unsigned mNbits;
-    unsigned mEs;
+    int mNbits;
+    int mEs;
     bool mNan;
 
-    POSIT_UTYPE buildMask(unsigned size);
-    POSIT_UTYPE buildBits(bool neg, signed reg, POSIT_UTYPE exp,
-                          POSIT_UTYPE frac);
-    void fromIeee(uint64_t fbits, unsigned fes, unsigned ffs);
-    uint64_t toIeee(unsigned fes, unsigned ffs);
+    POSIT_UTYPE buildMask(int size);
+    POSIT_UTYPE buildBits(bool neg, int reg, POSIT_UTYPE exp, POSIT_UTYPE frac);
 
-    Posit(POSIT_UTYPE bits, unsigned nbits, unsigned es, bool nan);
-    Posit(unsigned nbits, unsigned es, bool nan);
+    void fromIeee(uint64_t fbits, int fes, int ffs);
+    uint64_t toIeee(int fes, int ffs);
+
+    Posit(POSIT_UTYPE bits, int nbits, int es, bool nan);
+    Posit(int nbits, int es, bool nan);
 
 public:
-    Posit(unsigned nbits, unsigned es);
+    Posit(int nbits, int es);
 
     bool isZero();                  // check for 0
     bool isOne();                   // check for +/- 1
@@ -39,13 +39,13 @@ public:
     bool isNeg();                   // check for negative
     bool isNan();                   // check for NaN
 
-    unsigned nbits();               // size in bits
-    unsigned ss();                  // sign size in bits
-    unsigned rs();                  // regime size in bits
-    unsigned es();                  // exponent size in bits
-    unsigned fs();                  // fraction size in bits
-    unsigned useed();               // value at 45°
-    signed regime();                // regime rank
+    int nbits();                    // size in bits
+    int ss();                       // sign size in bits
+    int rs();                       // regime size in bits
+    int es();                       // exponent size in bits
+    int fs();                       // fraction size in bits
+    int useed();                    // value at 45°
+    int regime();                   // regime rank
     POSIT_UTYPE exponent();         // exponent value
     POSIT_UTYPE fraction();         // fraction value
     POSIT_UTYPE lfraction();        // left-aligned fraction value
