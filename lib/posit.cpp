@@ -248,24 +248,20 @@ Posit Posit::nan()
 
 Posit Posit::neg()
 {
-    Posit p = Posit(mNbits, mEs);
-    POSIT_UTYPE mask = buildMask(mNbits);
-
     // reverse all bits and add one
-    p.mBits = ((mBits ^ POSIT_MASK) + 1) & mask;
+    POSIT_UTYPE mask = buildMask(mNbits);
+    POSIT_UTYPE bits = ((mBits ^ POSIT_MASK) + 1) & mask;
 
-    return p;
+    return Posit(bits, mNbits, mEs, false);
 }
 
 Posit Posit::rec()
 {
-    Posit p = Posit(mNbits, mEs);
-    POSIT_UTYPE mask = buildMask(mNbits);
-
     // reverse all bits but the first one and add one
-    p.mBits = ((mBits ^ (POSIT_MASK >> ss())) + 1) & mask;
+    POSIT_UTYPE mask = buildMask(mNbits);
+    POSIT_UTYPE bits = ((mBits ^ (POSIT_MASK >> ss())) + 1) & mask;
 
-    return p;
+    return Posit(bits, mNbits, mEs, false);
 }
 
 Posit Posit::add(Posit& p)
