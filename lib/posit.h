@@ -3,6 +3,7 @@
 
 #include <cstdint>
 
+#define POSIT_LUTYPE    uint64_t
 #define POSIT_UTYPE     uint32_t
 #define POSIT_STYPE     int32_t
 #define POSIT_SIZE      (8 * sizeof(POSIT_UTYPE))
@@ -23,7 +24,6 @@ private:
     POSIT_UTYPE buildMask(unsigned size);
     POSIT_UTYPE buildBits(bool neg, signed reg, POSIT_UTYPE exp,
                           POSIT_UTYPE frac);
-    POSIT_UTYPE mulhi(POSIT_UTYPE a, POSIT_UTYPE b);
     POSIT_UTYPE ieeeToBits(uint64_t fbits, unsigned fes, unsigned ffs);
 
     Posit(POSIT_UTYPE bits, unsigned nbits, unsigned es, bool nan);
