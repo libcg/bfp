@@ -24,7 +24,8 @@ private:
     POSIT_UTYPE buildMask(unsigned size);
     POSIT_UTYPE buildBits(bool neg, signed reg, POSIT_UTYPE exp,
                           POSIT_UTYPE frac);
-    POSIT_UTYPE ieeeToBits(uint64_t fbits, unsigned fes, unsigned ffs);
+    void fromIeee(uint64_t fbits, unsigned fes, unsigned ffs);
+    uint64_t toIeee(unsigned fes, unsigned ffs);
 
     Posit(POSIT_UTYPE bits, unsigned nbits, unsigned es, bool nan);
     Posit(unsigned nbits, unsigned es, bool nan);

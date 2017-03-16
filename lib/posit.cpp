@@ -51,19 +51,20 @@ POSIT_UTYPE Posit::buildBits(bool neg, signed reg, POSIT_UTYPE exp,
     return bits & buildMask(mNbits);
 }
 
-POSIT_UTYPE Posit::ieeeToBits(uint64_t fbits, unsigned fes, unsigned ffs)
+void Posit::fromIeee(uint64_t fbits, unsigned fes, unsigned ffs)
 {
+    signed fexpbias = POW2(fes - 1) - 1;
     int16_t fexp = (fbits >> ffs) & ((1 << fes) - 1);
-    uint64_t ffrac = fbits & ((1LL << ffs) - 1);
+    uint64_t ffrac = fbits & ((1ULL << ffs) - 1);
 
     // clip exponent
     signed rminfexp = POW2(mEs) * (-mNbits + 2);
     signed rmaxfexp = POW2(mEs) * (mNbits - 2);
-    signed rfexp = MIN(MAX(fexp - POW2(fes - 1) + 1, rminfexp), rmaxfexp);
+    signed rfexp = MIN(MAX(fexp - fexpbias, rminfexp), rmaxfexp);
 
     bool rsign = fbits >> (fes + ffs);
     signed rreg = rfexp >> mEs; // floor(rfexp / 2^mEs)
-    unsigned rexp = rfexp - POW2(mEs) * rreg;
+    signed rexp = rfexp - POW2(mEs) * rreg;
     POSIT_UTYPE rfrac;
 
     if (ffs <= POSIT_SIZE) {
@@ -72,7 +73,48 @@ POSIT_UTYPE Posit::ieeeToBits(uint64_t fbits, unsigned fes, unsigned ffs)
         rfrac = ffrac >> (ffs - POSIT_SIZE);
     }
 
-    return buildBits(rsign, rreg, rexp, rfrac);
+    mBits = buildBits(rsign, rreg, rexp, rfrac);
+}
+
+uint64_t Posit::toIeee(unsigned fes, unsigned ffs)
+{
+    uint64_t fbits;
+    signed exp;
+    POSIT_UTYPE frac;
+
+    if (isNeg()) {
+        Posit p = neg();
+        exp = POW2(mEs) * p.regime() + p.exponent();
+        frac = p.lfraction();
+    } else {
+        exp = POW2(mEs) * regime() + exponent();
+        frac = lfraction();
+    }
+
+    signed rexpbias = POW2(fes - 1) - 1;
+    signed rexp = MIN(MAX(exp + rexpbias, 1), POW2(fes) - 2);
+    uint64_t rfrac;
+
+    if (exp + rexpbias < rexp) {
+        // TODO: support subnormals (exponent 0)
+        // underflow, set minimal fraction
+        rfrac = 0;
+    } else if (exp + rexpbias > rexp) {
+        // overflow, set maximal fraction
+        rfrac = 0xFFFFFFFFFFFFFFFFULL;
+    } else {
+        if (POSIT_SIZE <= ffs) {
+            rfrac = (uint64_t)frac << (ffs - POSIT_SIZE);
+        } else {
+            rfrac = (uint64_t)frac >> (POSIT_SIZE - ffs);
+        }
+    }
+
+    fbits = isNeg();
+    fbits = rexp | (fbits << fes);
+    fbits = rfrac | (fbits << ffs);
+
+    return fbits;
 }
 
 Posit::Posit(POSIT_UTYPE bits, unsigned nbits, unsigned es, bool nan) :
@@ -360,7 +402,7 @@ void Posit::set(float n)
         break;
     case FP_NORMAL:
         f = n;
-        mBits = ieeeToBits(bits, 8, 23);
+        fromIeee(bits, 8, 23);
         mNan = false;
         break;
     }
@@ -392,7 +434,7 @@ void Posit::set(double n)
         break;
     case FP_NORMAL:
         f = n;
-        mBits = ieeeToBits(bits, 11, 52);
+        fromIeee(bits, 11, 52);
         mNan = false;
         break;
     }
@@ -400,32 +442,42 @@ void Posit::set(double n)
 
 float Posit::getFloat()
 {
+    union {
+        float f;
+        uint32_t bits;
+    };
+
     if (isZero()) {
         return 0.f;
     } else if (isInf()) {
         return 1.f / 0.f;
+    } else if (isNan()) {
+        return 0.f / 0.f;
     }
 
-    Posit p = (isNeg() ? neg() : *this);
+    bits = (uint32_t)toIeee(8, 23);
 
-    return (isNeg() ? -1 : 1) *
-           powf(2, POW2(mEs) * p.regime() + (signed)p.exponent()) *
-           (1 + (float)p.fraction() / POW2(p.fs()));
+    return f;
 }
 
 double Posit::getDouble()
 {
+    union {
+        double f;
+        uint64_t bits;
+    };
+
     if (isZero()) {
         return 0.0;
     } else if (isInf()) {
         return 1.0 / 0.0;
+    } else if (isNan()) {
+        return 0.0 / 0.0;
     }
 
-    Posit p = (isNeg() ? neg() : *this);
+    bits = toIeee(11, 52);
 
-    return (isNeg() ? -1 : 1) *
-           pow(2, POW2(mEs) * p.regime() + (signed)p.exponent()) *
-           (1 + (double)p.fraction() / POW2(p.fs()));
+    return f;
 }
 
 void Posit::setBits(POSIT_UTYPE bits)
