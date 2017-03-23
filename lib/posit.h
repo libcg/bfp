@@ -21,7 +21,6 @@ private:
     int mEs;
     bool mNan;
 
-    POSIT_UTYPE buildMask(int size);
     POSIT_UTYPE buildBits(bool neg, int reg, POSIT_UTYPE exp, POSIT_UTYPE frac);
 
     void fromIeee(uint64_t fbits, int fes, int ffs);
@@ -47,7 +46,6 @@ public:
     int useed();                    // value at 45°
     int regime();                   // regime rank
     POSIT_UTYPE exponent();         // exponent value
-    POSIT_UTYPE fraction();         // fraction value
     POSIT_UTYPE lfraction();        // left-aligned fraction value
 
     Posit zero();                   // 0

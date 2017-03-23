@@ -19,10 +19,8 @@ using namespace std;
 #define MAX(a, b) \
     ((a) > (b) ? (a) : (b))
 
-POSIT_UTYPE Posit::buildMask(int size)
-{
-    return POSIT_MASK << (POSIT_SIZE - size);
-}
+#define LMASK(bits, size) \
+    ((bits) & (POSIT_MASK << (POSIT_SIZE - (size))))
 
 POSIT_UTYPE Posit::buildBits(bool neg, int reg, POSIT_UTYPE exp,
                              POSIT_UTYPE frac)
@@ -33,11 +31,11 @@ POSIT_UTYPE Posit::buildBits(bool neg, int reg, POSIT_UTYPE exp,
     int rs = MAX(-reg + 1, reg + 2);
 
     if (reg < 0) {
-        regBits = POSIT_MSB >> (-reg);
+        regBits = POSIT_MSB >> -reg;
     } else {
-        regBits = buildMask(reg + 1);
+        regBits = LMASK(POSIT_MASK, reg + 1);
     }
-    expBits = (exp << (POSIT_SIZE - mEs)) & buildMask(mEs);
+    expBits = LMASK(exp << (POSIT_SIZE - mEs), mEs);
 
     bits = frac;
     bits = expBits | (bits >> mEs);
@@ -48,7 +46,7 @@ POSIT_UTYPE Posit::buildBits(bool neg, int reg, POSIT_UTYPE exp,
         bits = (bits ^ POSIT_MASK) + 1;
     }
 
-    return bits & buildMask(mNbits);
+    return LMASK(bits, mNbits);
 }
 
 void Posit::fromIeee(uint64_t fbits, int fes, int ffs)
@@ -84,7 +82,7 @@ uint64_t Posit::toIeee(int fes, int ffs)
 
     if (isNeg()) {
         Posit p = neg();
-        exp = POW2(mEs) * p.regime() + p.exponent();
+        exp = POW2(p.mEs) * p.regime() + p.exponent();
         frac = p.lfraction();
     } else {
         exp = POW2(mEs) * regime() + exponent();
@@ -101,7 +99,7 @@ uint64_t Posit::toIeee(int fes, int ffs)
         rfrac = 0;
     } else if (exp + rexpbias > rexp) {
         // overflow, set maximal fraction
-        rfrac = 0xFFFFFFFFFFFFFFFFULL;
+        rfrac = -1ULL;
     } else {
         if (POSIT_SIZE <= ffs) {
             rfrac = (uint64_t)frac << (ffs - POSIT_SIZE);
@@ -200,29 +198,18 @@ int Posit::regime()
     int lz = CLZ(bits << ss());
     int lo = CLZ(~bits << ss());
 
-    if (lz == 0)
-        return lo - 1;
-    else
-        return -lz;
+    return (lz == 0 ? lo - 1 : -lz);
 }
 
 POSIT_UTYPE Posit::exponent()
 {
-    POSIT_UTYPE expBits = (mBits & (buildMask(mEs) >> (ss() + rs())));
+    POSIT_UTYPE lExpBits = mBits << (ss() + rs());
 
-    return expBits >> (POSIT_SIZE - mNbits + fs());
-}
-
-POSIT_UTYPE Posit::fraction()
-{
-    POSIT_UTYPE fracBits = (mBits & (buildMask(fs()) >> (ss() + rs() + mEs)));
-
-    return fracBits >> (POSIT_SIZE - mNbits);
+    return lExpBits >> (POSIT_SIZE - mEs);
 }
 
 POSIT_UTYPE Posit::lfraction()
 {
-    // left-align bits
     return mBits << (ss() + rs() + mEs);
 }
 
@@ -249,8 +236,7 @@ Posit Posit::nan()
 Posit Posit::neg()
 {
     // reverse all bits and add one
-    POSIT_UTYPE mask = buildMask(mNbits);
-    POSIT_UTYPE bits = ((mBits ^ POSIT_MASK) + 1) & mask;
+    POSIT_UTYPE bits = LMASK(-mBits, mNbits);
 
     return Posit(bits, mNbits, mEs, false);
 }
@@ -258,8 +244,7 @@ Posit Posit::neg()
 Posit Posit::rec()
 {
     // reverse all bits but the first one and add one
-    POSIT_UTYPE mask = buildMask(mNbits);
-    POSIT_UTYPE bits = ((mBits ^ (POSIT_MASK >> ss())) + 1) & mask;
+    POSIT_UTYPE bits = LMASK((mBits ^ (POSIT_MASK >> ss())) + 1, mNbits);
 
     return Posit(bits, mNbits, mEs, false);
 }
