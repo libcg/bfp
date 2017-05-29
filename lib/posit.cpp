@@ -148,13 +148,10 @@ int Posit::useed()
 
 int Posit::regime()
 {
-    POSIT_UTYPE bits = isNeg() ? neg().mBits : mBits;
-    int lz = CLZ(bits << ss());
-    int lo = CLZ(~bits << ss());
-
-    return (lz == 0 ? lo - 1 : -lz);
+    return util_regime(mBits, mNbits);
 }
 
+// TODO only used when unpacking
 POSIT_UTYPE Posit::exponent()
 {
     POSIT_UTYPE lExpBits = mBits << (ss() + rs());
@@ -162,6 +159,7 @@ POSIT_UTYPE Posit::exponent()
     return lExpBits >> (POSIT_SIZE - mEs);
 }
 
+// TODO only used when unpacking
 POSIT_UTYPE Posit::lfraction()
 {
     return mBits << (ss() + rs() + mEs);
@@ -189,18 +187,12 @@ Posit Posit::nan()
 
 Posit Posit::neg()
 {
-    // reverse all bits and add one
-    POSIT_UTYPE bits = LMASK(-mBits, mNbits);
-
-    return Posit(bits, mNbits, mEs, false);
+    return Posit(util_neg(mBits, mNbits), mNbits, mEs, false);
 }
 
 Posit Posit::rec()
 {
-    // reverse all bits but the first one and add one
-    POSIT_UTYPE bits = LMASK((mBits ^ (POSIT_MASK >> ss())) + 1, mNbits);
-
-    return Posit(bits, mNbits, mEs, false);
+    return Posit(util_rec(mBits, mNbits, mEs), mNbits, mEs, false);
 }
 
 Posit Posit::add(Posit& p)

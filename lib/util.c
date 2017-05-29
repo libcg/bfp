@@ -50,3 +50,30 @@ int util_fs(POSIT_UTYPE p, int nbits, int es)
 
     return MAX(nbits - ss - rs - es, 0);
 }
+
+int util_regime(POSIT_UTYPE p, int nbits)
+{
+    if (util_is_neg(p)) {
+        p = util_neg(p, nbits);
+    }
+
+    int ss = util_ss();
+    int lz = CLZ(p << ss);
+    int lo = CLZ(~p << ss);
+
+    return (lz == 0 ? lo - 1 : -lz);
+}
+
+POSIT_UTYPE util_neg(POSIT_UTYPE p, int nbits)
+{
+    // reverse all bits and add one
+    return LMASK(-p, nbits);
+}
+
+POSIT_UTYPE util_rec(POSIT_UTYPE p, int nbits, int es)
+{
+    int ss = util_ss();
+
+    // FIXME fraction bits are wrong
+    return LMASK((p ^ (POSIT_MASK >> ss)) + 1, nbits);
+}
