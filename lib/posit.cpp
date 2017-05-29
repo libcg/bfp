@@ -93,22 +93,22 @@ Posit::Posit(int nbits, int es) :
 
 bool Posit::isZero()
 {
-    return mBits == POSIT_ZERO;
+    return util_is_zero(mBits);
 }
 
 bool Posit::isOne()
 {
-    return mBits == POSIT_ONE || mBits == POSIT_MONE;
+    return util_is_one(mBits);
 }
 
 bool Posit::isInf()
 {
-    return mBits == POSIT_INF;
+    return util_is_inf(mBits);
 }
 
 bool Posit::isNeg()
 {
-    return (POSIT_STYPE)mBits < 0 && mBits != POSIT_INF;
+    return util_is_neg(mBits);
 }
 
 bool Posit::isNan()
@@ -123,26 +123,22 @@ int Posit::nbits()
 
 int Posit::ss()
 {
-    return 1;
+    return util_ss();
 }
 
 int Posit::rs()
 {
-    int lz = CLZ(mBits << ss());
-    int lo = CLZ(~mBits << ss());
-    int rs = MAX(lz, lo) + 1;
-
-    return MIN(rs, mNbits - ss());
+    return util_rs(mBits, mNbits);
 }
 
 int Posit::es()
 {
-    return MIN(MAX(mNbits - ss() - rs(), 0), mEs);
+    return util_es(mBits, mNbits, mEs);
 }
 
 int Posit::fs()
 {
-    return MAX(mNbits - ss() - rs() - mEs, 0);
+    return util_fs(mBits, mNbits, mEs);
 }
 
 int Posit::useed()

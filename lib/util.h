@@ -24,6 +24,16 @@ extern "C" {
 #define LMASK(bits, size) \
     ((bits) & (POSIT_MASK << (POSIT_SIZE - (size))))
 
+bool util_is_zero(POSIT_UTYPE p);
+bool util_is_one(POSIT_UTYPE p);
+bool util_is_inf(POSIT_UTYPE p);
+bool util_is_neg(POSIT_UTYPE p);
+
+int util_ss();
+int util_rs(POSIT_UTYPE p, int nbits);
+int util_es(POSIT_UTYPE p, int nbits, int es);
+int util_fs(POSIT_UTYPE p, int nbits, int es);
+
 #ifdef __cplusplus
 }
 #endif
