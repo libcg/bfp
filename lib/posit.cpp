@@ -1,53 +1,11 @@
 #include "posit.h"
+#include "util.h"
+#include "pack.h"
 
 #include <cstdio>
 #include <cmath>
 
 using namespace std;
-
-#ifdef __GNUC__
-#define CLZ(n) \
-    __builtin_clz(n)
-#endif
-
-#define POW2(n) \
-    (1 << (n))
-
-#define MIN(a, b) \
-    ((a) < (b) ? (a) : (b))
-
-#define MAX(a, b) \
-    ((a) > (b) ? (a) : (b))
-
-#define LMASK(bits, size) \
-    ((bits) & (POSIT_MASK << (POSIT_SIZE - (size))))
-
-POSIT_UTYPE Posit::buildBits(bool neg, int reg, POSIT_UTYPE exp,
-                             POSIT_UTYPE frac)
-{
-    POSIT_UTYPE bits;
-    POSIT_UTYPE regBits;
-    POSIT_UTYPE expBits;
-    int rs = MAX(-reg + 1, reg + 2);
-
-    if (reg < 0) {
-        regBits = POSIT_MSB >> -reg;
-    } else {
-        regBits = LMASK(POSIT_MASK, reg + 1);
-    }
-    expBits = LMASK(exp << (POSIT_SIZE - mEs), mEs);
-
-    bits = frac;
-    bits = expBits | (bits >> mEs);
-    bits = regBits | (bits >> rs);
-    bits = bits >> ss();
-
-    if (neg) {
-        bits = (bits ^ POSIT_MASK) + 1;
-    }
-
-    return LMASK(bits, mNbits);
-}
 
 void Posit::fromIeee(uint64_t fbits, int fes, int ffs)
 {
@@ -60,18 +18,18 @@ void Posit::fromIeee(uint64_t fbits, int fes, int ffs)
     int rmaxfexp = POW2(mEs) * (mNbits - 2);
     int rfexp = MIN(MAX(fexp - fexpbias, rminfexp), rmaxfexp);
 
-    bool rsign = fbits >> (fes + ffs);
-    int rreg = rfexp >> mEs; // floor(rfexp / 2^mEs)
-    int rexp = rfexp - POW2(mEs) * rreg;
-    POSIT_UTYPE rfrac;
+    unpkd_posit_t up;
 
+    up.neg = fbits >> (fes + ffs),
+    up.reg = rfexp >> mEs; // floor(rfexp / 2^mEs),
+    up.exp = rfexp - POW2(mEs) * up.reg;
     if (ffs <= POSIT_SIZE) {
-        rfrac = ffrac << (POSIT_SIZE - ffs);
+        up.frac = ffrac << (POSIT_SIZE - ffs);
     } else {
-        rfrac = ffrac >> (ffs - POSIT_SIZE);
+        up.frac = ffrac >> (ffs - POSIT_SIZE);
     }
 
-    mBits = buildBits(rsign, rreg, rexp, rfrac);
+    mBits = pack_posit(up, mNbits, mEs);
 }
 
 uint64_t Posit::toIeee(int fes, int ffs)
@@ -312,12 +270,14 @@ Posit Posit::mul(Posit& p)
     int rmaxfexp = POW2(mEs) * (mNbits - 2);
     int rfexp = MIN(MAX(xfexp + pfexp - shift + 1, rminfexp), rmaxfexp);
 
-    bool rsign = isNeg() ^ p.isNeg();
-    int rreg = rfexp >> mEs; // floor(rfexp / 2^mEs)
-    int rexp = rfexp - POW2(mEs) * rreg;
-    POSIT_UTYPE rfrac = mfrac << (shift + 1);
+    unpkd_posit_t up;
 
-    return Posit(buildBits(rsign, rreg, rexp, rfrac), mNbits, mEs, false);
+    up.neg = isNeg() ^ p.isNeg();
+    up.reg = rfexp >> mEs; // floor(rfexp / 2^mEs)
+    up.exp = rfexp - POW2(mEs) * up.reg;
+    up.frac = mfrac << (shift + 1);
+
+    return Posit(pack_posit(up, mNbits, mEs), mNbits, mEs, false);
 }
 
 Posit Posit::div(Posit& p)

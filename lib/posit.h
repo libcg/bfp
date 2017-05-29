@@ -1,18 +1,7 @@
 #ifndef __POSIT_H
 #define __POSIT_H
 
-#include <cstdint>
-
-#define POSIT_LUTYPE    uint64_t
-#define POSIT_UTYPE     uint32_t
-#define POSIT_STYPE     int32_t
-#define POSIT_SIZE      (8 * (int)sizeof(POSIT_UTYPE))
-#define POSIT_ZERO      ((POSIT_UTYPE)0x00000000)
-#define POSIT_ONE       ((POSIT_UTYPE)0x40000000)
-#define POSIT_MONE      ((POSIT_UTYPE)0xC0000000)
-#define POSIT_INF       ((POSIT_UTYPE)0x80000000)
-#define POSIT_MSB       ((POSIT_UTYPE)0x80000000)
-#define POSIT_MASK      ((POSIT_UTYPE)0xFFFFFFFF)
+#include "posit_types.h"
 
 class Posit {
 private:
@@ -20,8 +9,6 @@ private:
     int mNbits;
     int mEs;
     bool mNan;
-
-    POSIT_UTYPE buildBits(bool neg, int reg, POSIT_UTYPE exp, POSIT_UTYPE frac);
 
     void fromIeee(uint64_t fbits, int fes, int ffs);
     uint64_t toIeee(int fes, int ffs);

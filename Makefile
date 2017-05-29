@@ -1,8 +1,10 @@
+CC = gcc
 CXX = g++
-CXXFLAGS = -Ilib -Itest -O2 -Wall -g
+CFLAGS = -Ilib -Itest -O2 -Wall -g
+CXXFLAGS = $(CFLAGS)
 
 LIB_TARGET = lib/libbfp.a
-LIB_OBJ = lib/posit.o
+LIB_OBJ = lib/posit.o lib/pack.o
 
 TEST_TARGET = test/bfptest
 TEST_OBJ = test/test.o test/p2_test.o test/p3_test.o \
@@ -33,3 +35,5 @@ $(TARGET): $(OBJ)
 %.o: %.cpp
 	$(CXX) -o $@ $(CXXFLAGS) -c $^
 
+%.o: %.c
+	$(CC) -o $@ $(CFLAGS) -c $^
