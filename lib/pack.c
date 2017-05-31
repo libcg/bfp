@@ -33,11 +33,9 @@ struct unpkd_posit_t unpack_posit(POSIT_UTYPE p, int nbits, int es)
 {
     struct unpkd_posit_t up;
 
-    if (util_is_neg(p)) {
-        up.neg = true;
+    up.neg = util_is_neg(p);
+    if (up.neg) {
         p = util_neg(p, nbits);
-    } else {
-        up.neg = false;
     }
 
     int ss = util_ss();
