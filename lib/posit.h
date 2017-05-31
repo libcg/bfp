@@ -31,9 +31,6 @@ public:
     int es();                       // exponent size in bits
     int fs();                       // fraction size in bits
     int useed();                    // value at 45°
-    int regime();                   // regime rank
-    POSIT_UTYPE exponent();         // exponent value
-    POSIT_UTYPE lfraction();        // left-aligned fraction value
 
     Posit zero();                   // 0
     Posit one();                    // 1

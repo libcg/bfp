@@ -17,6 +17,8 @@ struct unpkd_posit_t
 
 POSIT_UTYPE pack_posit(struct unpkd_posit_t p, int nbits, int es);
 
+struct unpkd_posit_t unpack_posit(POSIT_UTYPE p, int nbits, int es);
+
 #ifdef __cplusplus
 }
 #endif

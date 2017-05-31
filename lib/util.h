@@ -33,7 +33,6 @@ int util_ss();
 int util_rs(POSIT_UTYPE p, int nbits);
 int util_es(POSIT_UTYPE p, int nbits, int es);
 int util_fs(POSIT_UTYPE p, int nbits, int es);
-int util_regime(POSIT_UTYPE p, int nbits);
 
 POSIT_UTYPE util_neg(POSIT_UTYPE p, int nbits);
 POSIT_UTYPE util_rec(POSIT_UTYPE p, int nbits, int es);

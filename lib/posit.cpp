@@ -34,18 +34,8 @@ void Posit::fromIeee(uint64_t fbits, int fes, int ffs)
 
 uint64_t Posit::toIeee(int fes, int ffs)
 {
-    uint64_t fbits;
-    int exp;
-    POSIT_UTYPE frac;
-
-    if (isNeg()) {
-        Posit p = neg();
-        exp = POW2(p.mEs) * p.regime() + p.exponent();
-        frac = p.lfraction();
-    } else {
-        exp = POW2(mEs) * regime() + exponent();
-        frac = lfraction();
-    }
+    unpkd_posit_t up = unpack_posit(mBits, mNbits, mEs);
+    int exp = POW2(mEs) * up.reg + up.exp;
 
     int rexpbias = POW2(fes - 1) - 1;
     int rexp = MIN(MAX(exp + rexpbias, 1), POW2(fes) - 2);
@@ -60,12 +50,13 @@ uint64_t Posit::toIeee(int fes, int ffs)
         rfrac = -1ULL;
     } else {
         if (POSIT_SIZE <= ffs) {
-            rfrac = (uint64_t)frac << (ffs - POSIT_SIZE);
+            rfrac = (uint64_t)up.frac << (ffs - POSIT_SIZE);
         } else {
-            rfrac = (uint64_t)frac >> (POSIT_SIZE - ffs);
+            rfrac = (uint64_t)up.frac >> (POSIT_SIZE - ffs);
         }
     }
 
+    uint64_t fbits;
     fbits = isNeg();
     fbits = rexp | (fbits << fes);
     fbits = rfrac | (fbits << ffs);
@@ -146,25 +137,6 @@ int Posit::useed()
     return POW2(POW2(mEs));
 }
 
-int Posit::regime()
-{
-    return util_regime(mBits, mNbits);
-}
-
-// TODO only used when unpacking
-POSIT_UTYPE Posit::exponent()
-{
-    POSIT_UTYPE lExpBits = mBits << (ss() + rs());
-
-    return lExpBits >> (POSIT_SIZE - mEs);
-}
-
-// TODO only used when unpacking
-POSIT_UTYPE Posit::lfraction()
-{
-    return mBits << (ss() + rs() + mEs);
-}
-
 Posit Posit::zero()
 {
     return Posit(POSIT_ZERO, mNbits, mEs, false);
@@ -241,14 +213,17 @@ Posit Posit::mul(Posit& p)
         return one().neg();
     }
 
-    int xfexp = POW2(mEs) * regime() + exponent();
-    int pfexp = POW2(mEs) * p.regime() + p.exponent();
+    unpkd_posit_t up;
+    unpkd_posit_t xup = unpack_posit(mBits, mNbits, mEs);
+    unpkd_posit_t pup = unpack_posit(p.mBits, p.mNbits, p.mEs);
+
+    int xfexp = POW2(mEs) * xup.reg + xup.exp;
+    int pfexp = POW2(p.mEs) * pup.reg + pup.exp;
 
     // fractions have a hidden bit
-    POSIT_UTYPE xfrac = POSIT_MSB | (lfraction() >> 1);
-    POSIT_UTYPE pfrac = POSIT_MSB | (p.lfraction() >> 1);
-    POSIT_UTYPE mfrac = ((POSIT_LUTYPE)xfrac *
-                         (POSIT_LUTYPE)pfrac) >> POSIT_SIZE;
+    POSIT_LUTYPE xfrac = POSIT_MSB | (xup.frac >> 1);
+    POSIT_LUTYPE pfrac = POSIT_MSB | (pup.frac >> 1);
+    POSIT_UTYPE mfrac = (xfrac * pfrac) >> POSIT_SIZE;
 
     // shift is either 0 or 1
     int shift = CLZ(mfrac);
@@ -257,8 +232,6 @@ Posit Posit::mul(Posit& p)
     int rminfexp = POW2(mEs) * (-mNbits + 2);
     int rmaxfexp = POW2(mEs) * (mNbits - 2);
     int rfexp = MIN(MAX(xfexp + pfexp - shift + 1, rminfexp), rmaxfexp);
-
-    unpkd_posit_t up;
 
     up.neg = isNeg() ^ p.isNeg();
     up.reg = rfexp >> mEs; // floor(rfexp / 2^mEs)
@@ -429,7 +402,7 @@ void Posit::print()
         printf("%d", (mBits >> i) & 1);
     }
 
-    printf(" (%d) -> ", regime());
+    printf(" -> ");
     printf(isNeg() || isInf() ? "-" : "+");
 
     for (int i = POSIT_SIZE - ss() - 1; i >= POSIT_SIZE - mNbits; i--) {
