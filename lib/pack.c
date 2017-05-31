@@ -1,31 +1,32 @@
 #include "pack.h"
 #include "util.h"
 
-POSIT_UTYPE pack_posit(struct unpkd_posit_t p, int nbits, int es)
+POSIT_UTYPE pack_posit(struct unpkd_posit_t up, int nbits, int es)
 {
-    POSIT_UTYPE bits;
+    POSIT_UTYPE p;
     POSIT_UTYPE regBits;
     POSIT_UTYPE expBits;
+
     int ss = util_ss();
-    int rs = MAX(-p.reg + 1, p.reg + 2);
+    int rs = MAX(-up.reg + 1, up.reg + 2);
 
-    if (p.reg < 0) {
-        regBits = POSIT_MSB >> -p.reg;
+    if (up.reg < 0) {
+        regBits = POSIT_MSB >> -up.reg;
     } else {
-        regBits = LMASK(POSIT_MASK, p.reg + 1);
+        regBits = LMASK(POSIT_MASK, up.reg + 1);
     }
-    expBits = LMASK(p.exp << (POSIT_SIZE - es), es);
+    expBits = LMASK(up.exp << (POSIT_SIZE - es), es);
 
-    bits = p.frac;
-    bits = expBits | (bits >> es);
-    bits = regBits | (bits >> rs);
-    bits = bits >> ss;
+    p = up.frac;
+    p = expBits | (p >> es);
+    p = regBits | (p >> rs);
+    p = p >> ss;
 
-    if (p.neg) {
-        bits = (bits ^ POSIT_MASK) + 1;
+    if (up.neg) {
+        return util_neg(p, nbits);
+    } else {
+        return LMASK(p, nbits);
     }
-
-    return LMASK(bits, nbits);
 }
 
 struct unpkd_posit_t unpack_posit(POSIT_UTYPE p, int nbits, int es)
