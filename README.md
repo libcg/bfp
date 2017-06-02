@@ -1,6 +1,6 @@
 # bfp - Beyond Floating Point
 
-bfp is a C++ posit floating point format implementation.
+bfp is a C/C++ posit floating point format implementation.
 
 From Dr. John L. Gustafson's intro:
 
@@ -24,10 +24,11 @@ superior answer quality."
 
 - Create a human readable posit reference implementation
 - Can be used as a library
-- Can be used in embedded projects (port to C)
+- Can be used in embedded projects
 
 ### References
 
 - [Abstract](http://web.stanford.edu/class/ee380/Abstracts/170201.html)
-- [Posit slides](http://ee380.stanford.edu/Abstracts/170201-slides.pdf)
+- [Video presentation](https://www.youtube.com/watch?v=aP0Y1uAA-2Y)
+- [Posit slides](http://supercomputingfrontiers.com/2017/wp-content/uploads/2017/03/2_1100_John-Gustafson.pdf) ([previous slides](http://ee380.stanford.edu/Abstracts/170201-slides.pdf))
 - [Unum slides](http://www.johngustafson.net/presentations/Unums2.0.pdf)
