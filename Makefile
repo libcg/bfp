@@ -1,6 +1,6 @@
 CC = gcc
 CXX = g++
-CFLAGS = -Ilib -Itest -O2 -Wall -g
+CFLAGS = -std=c++11 -Ilib -Itest -O2 -Wall -g
 CXXFLAGS = $(CFLAGS)
 
 LIB_TARGET = lib/libbfp.a
