@@ -1,7 +1,8 @@
 CC = gcc
 CXX = g++
-CFLAGS = -std=c++11 -Ilib -Itest -O2 -Wall -g
-CXXFLAGS = $(CFLAGS)
+FLAGS = -Ilib -Itest -O2 -Wall -g
+CFLAGS = -std=c99 $(FLAGS)
+CXXFLAGS = -std=c++11 $(FLAGS)
 
 LIB_TARGET = lib/libbfp.a
 LIB_OBJ = lib/posit.o lib/pack.o lib/util.o
