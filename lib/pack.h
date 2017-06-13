@@ -16,6 +16,8 @@ struct unpkd_posit_t
 };
 
 POSIT_UTYPE pack_posit(struct unpkd_posit_t up, int nbits, int es);
+float pack_float(struct unpkd_posit_t up, int es);
+double pack_double(struct unpkd_posit_t up, int es);
 
 struct unpkd_posit_t unpack_posit(POSIT_UTYPE p, int nbits, int es);
 

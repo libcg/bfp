@@ -32,38 +32,6 @@ void Posit::fromIeee(uint64_t fbits, int fes, int ffs)
     mBits = pack_posit(up, mNbits, mEs);
 }
 
-uint64_t Posit::toIeee(int fes, int ffs)
-{
-    unpkd_posit_t up = unpack_posit(mBits, mNbits, mEs);
-    int exp = POW2(mEs) * up.reg + up.exp;
-
-    int rexpbias = POW2(fes - 1) - 1;
-    int rexp = MIN(MAX(exp + rexpbias, 1), POW2(fes) - 2);
-    uint64_t rfrac;
-
-    if (exp + rexpbias < rexp) {
-        // TODO: support subnormals (exponent 0)
-        // underflow, set minimal fraction
-        rfrac = 0;
-    } else if (exp + rexpbias > rexp) {
-        // overflow, set maximal fraction
-        rfrac = -1ULL;
-    } else {
-        if (POSIT_SIZE <= ffs) {
-            rfrac = (uint64_t)up.frac << (ffs - POSIT_SIZE);
-        } else {
-            rfrac = (uint64_t)up.frac >> (POSIT_SIZE - ffs);
-        }
-    }
-
-    uint64_t fbits;
-    fbits = isNeg();
-    fbits = rexp | (fbits << fes);
-    fbits = rfrac | (fbits << ffs);
-
-    return fbits;
-}
-
 Posit::Posit(POSIT_UTYPE bits, int nbits, int es, bool nan) :
     mBits(bits),
     mNbits(nbits),
@@ -344,11 +312,6 @@ void Posit::set(double n)
 
 float Posit::getFloat()
 {
-    union {
-        float f;
-        uint32_t bits;
-    };
-
     if (isZero()) {
         return 0.f;
     } else if (isInf()) {
@@ -357,18 +320,11 @@ float Posit::getFloat()
         return 0.f / 0.f;
     }
 
-    bits = (uint32_t)toIeee(8, 23);
-
-    return f;
+    return pack_float(unpack_posit(mBits, mNbits, mEs), mEs);
 }
 
 double Posit::getDouble()
 {
-    union {
-        double f;
-        uint64_t bits;
-    };
-
     if (isZero()) {
         return 0.0;
     } else if (isInf()) {
@@ -377,9 +333,7 @@ double Posit::getDouble()
         return 0.0 / 0.0;
     }
 
-    bits = toIeee(11, 52);
-
-    return f;
+    return pack_double(unpack_posit(mBits, mNbits, mEs), mEs);
 }
 
 void Posit::setBits(POSIT_UTYPE bits)
