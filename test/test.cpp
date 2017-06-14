@@ -4,6 +4,7 @@
 
 CuSuite* TestP2GetSuite();
 CuSuite* TestP3GetSuite();
+CuSuite* TestIeeeGetSuite();
 
 void genDivTable(POSIT_STYPE *div_table, POSIT_STYPE *mul_table, int size)
 {
@@ -29,6 +30,7 @@ void RunAllTests(void)
 
     CuSuiteAddSuite(suite, TestP2GetSuite());
     CuSuiteAddSuite(suite, TestP3GetSuite());
+    CuSuiteAddSuite(suite, TestIeeeGetSuite());
 
     CuSuiteRun(suite);
     CuSuiteSummary(suite, output);

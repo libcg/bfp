@@ -8,7 +8,7 @@ LIB_TARGET = lib/libbfp.a
 LIB_OBJ = lib/posit.o lib/pack.o lib/util.o
 
 TEST_TARGET = test/bfptest
-TEST_OBJ = test/test.o test/p2_test.o test/p3_test.o \
+TEST_OBJ = test/test.o test/p2_test.o test/p3_test.o test/ieee_test.o \
            test/CuTest.o $(LIB_TARGET)
 
 TARGET = bfp
