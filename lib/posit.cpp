@@ -9,6 +9,8 @@ using namespace std;
 
 void Posit::fromIeee(uint64_t fbits, int fes, int ffs)
 {
+    unpacked_t up;
+
     int fexpbias = POW2(fes - 1) - 1;
     int16_t fexp = (fbits >> ffs) & ((1 << fes) - 1);
     uint64_t ffrac = fbits & ((1ULL << ffs) - 1);
@@ -18,11 +20,8 @@ void Posit::fromIeee(uint64_t fbits, int fes, int ffs)
     int rmaxfexp = POW2(mEs) * (mNbits - 2);
     int rfexp = MIN(MAX(fexp - fexpbias, rminfexp), rmaxfexp);
 
-    unpkd_posit_t up;
-
-    up.neg = fbits >> (fes + ffs),
-    up.reg = rfexp >> mEs; // floor(rfexp / 2^mEs),
-    up.exp = rfexp - POW2(mEs) * up.reg;
+    up.neg = fbits >> (fes + ffs);
+    up.exp = rfexp;
     if (ffs <= POSIT_SIZE) {
         up.frac = ffrac << (POSIT_SIZE - ffs);
     } else {
@@ -181,12 +180,9 @@ Posit Posit::mul(Posit& p)
         return one().neg();
     }
 
-    unpkd_posit_t up;
-    unpkd_posit_t xup = unpack_posit(mBits, mNbits, mEs);
-    unpkd_posit_t pup = unpack_posit(p.mBits, p.mNbits, p.mEs);
-
-    int xfexp = POW2(mEs) * xup.reg + xup.exp;
-    int pfexp = POW2(p.mEs) * pup.reg + pup.exp;
+    unpacked_t up;
+    unpacked_t xup = unpack_posit(mBits, mNbits, mEs);
+    unpacked_t pup = unpack_posit(p.mBits, p.mNbits, p.mEs);
 
     // fractions have a hidden bit
     POSIT_LUTYPE xfrac = POSIT_MSB | (xup.frac >> 1);
@@ -199,11 +195,10 @@ Posit Posit::mul(Posit& p)
     // clip exponent to avoid underflow and overflow
     int rminfexp = POW2(mEs) * (-mNbits + 2);
     int rmaxfexp = POW2(mEs) * (mNbits - 2);
-    int rfexp = MIN(MAX(xfexp + pfexp - shift + 1, rminfexp), rmaxfexp);
+    int rfexp = MIN(MAX(xup.exp + pup.exp - shift + 1, rminfexp), rmaxfexp);
 
     up.neg = isNeg() ^ p.isNeg();
-    up.reg = rfexp >> mEs; // floor(rfexp / 2^mEs)
-    up.exp = rfexp - POW2(mEs) * up.reg;
+    up.exp = rfexp;
     up.frac = mfrac << (shift + 1);
 
     return Posit(pack_posit(up, mNbits, mEs), mNbits, mEs, false);

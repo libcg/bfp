@@ -1,25 +1,28 @@
 #include "pack.h"
 #include "util.h"
 
-POSIT_UTYPE pack_posit(struct unpkd_posit_t up, int nbits, int es)
+POSIT_UTYPE pack_posit(struct unpacked_t up, int nbits, int es)
 {
     POSIT_UTYPE p;
-    POSIT_UTYPE regBits;
-    POSIT_UTYPE expBits;
+    POSIT_UTYPE regbits;
+    POSIT_UTYPE expbits;
+
+    int reg = up.exp >> es; // floor(x / 2^y)
+    POSIT_UTYPE exp = up.exp - POW2(es) * reg;
 
     int ss = util_ss();
-    int rs = MAX(-up.reg + 1, up.reg + 2);
+    int rs = MAX(-reg + 1, reg + 2);
 
-    if (up.reg < 0) {
-        regBits = POSIT_MSB >> -up.reg;
+    if (reg < 0) {
+        regbits = POSIT_MSB >> -reg;
     } else {
-        regBits = LMASK(POSIT_MASK, up.reg + 1);
+        regbits = LMASK(POSIT_MASK, reg + 1);
     }
-    expBits = LMASK(up.exp << (POSIT_SIZE - es), es);
+    expbits = LMASK(exp << (POSIT_SIZE - es), es);
 
     p = up.frac;
-    p = expBits | (p >> es);
-    p = regBits | (p >> rs);
+    p = expbits | (p >> es);
+    p = regbits | (p >> rs);
     p = p >> ss;
 
     if (up.neg) {
@@ -29,9 +32,9 @@ POSIT_UTYPE pack_posit(struct unpkd_posit_t up, int nbits, int es)
     }
 }
 
-float pack_float(struct unpkd_posit_t up, int es)
+float pack_float(struct unpacked_t up, int es)
 {
-    int fexp = POW2(es) * up.reg + up.exp + 127;
+    int fexp = MIN(MAX(up.exp + 127, 0), 255);
 
     // left aligned
     uint32_t fexpbits;
@@ -67,9 +70,9 @@ float pack_float(struct unpkd_posit_t up, int es)
     return f.f;
 }
 
-double pack_double(struct unpkd_posit_t up, int es)
+double pack_double(struct unpacked_t up, int es)
 {
-    int fexp = POW2(es) * up.reg + up.exp + 1023;
+    int fexp = MIN(MAX(up.exp + 1023, 0), 2047);
 
     // left aligned
     uint64_t fexpbits;
@@ -105,12 +108,12 @@ double pack_double(struct unpkd_posit_t up, int es)
     return f.f;
 }
 
-struct unpkd_posit_t unpack_posit(POSIT_UTYPE p, int nbits, int es)
+struct unpacked_t unpack_posit(POSIT_UTYPE p, int nbits, int es)
 {
-    struct unpkd_posit_t up;
+    struct unpacked_t up;
 
-    up.neg = util_is_neg(p);
-    if (up.neg) {
+    bool neg = util_is_neg(p);
+    if (neg) {
         p = util_neg(p, nbits);
     }
 
@@ -120,8 +123,11 @@ struct unpkd_posit_t unpack_posit(POSIT_UTYPE p, int nbits, int es)
     int lz = CLZ(p << ss);
     int lo = CLZ(~p << ss);
 
-    up.reg = (lz == 0 ? lo - 1 : -lz);
-    up.exp = (p << (ss + rs)) >> (POSIT_SIZE - es);
+    int reg = (lz == 0 ? lo - 1 : -lz);
+    POSIT_UTYPE exp = (p << (ss + rs)) >> (POSIT_SIZE - es);
+
+    up.neg = neg;
+    up.exp = POW2(es) * reg + exp;
     up.frac = p << (ss + rs + es);
 
     return up;

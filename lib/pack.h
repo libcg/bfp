@@ -7,19 +7,18 @@ extern "C" {
 
 #include "posit_types.h"
 
-struct unpkd_posit_t
+struct unpacked_t
 {
     bool neg;
-    int reg;
-    POSIT_UTYPE exp;
+    POSIT_STYPE exp;
     POSIT_UTYPE frac;
 };
 
-POSIT_UTYPE pack_posit(struct unpkd_posit_t up, int nbits, int es);
-float pack_float(struct unpkd_posit_t up, int es);
-double pack_double(struct unpkd_posit_t up, int es);
+POSIT_UTYPE pack_posit(struct unpacked_t up, int nbits, int es);
+float pack_float(struct unpacked_t up, int es);
+double pack_double(struct unpacked_t up, int es);
 
-struct unpkd_posit_t unpack_posit(POSIT_UTYPE p, int nbits, int es);
+struct unpacked_t unpack_posit(POSIT_UTYPE p, int nbits, int es);
 
 #ifdef __cplusplus
 }
