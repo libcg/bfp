@@ -7,7 +7,7 @@ POSIT_UTYPE pack_posit(struct unpacked_t up, int nbits, int es)
     POSIT_UTYPE regbits;
     POSIT_UTYPE expbits;
 
-    int reg = up.exp >> es; // floor(x / 2^y)
+    int reg = FLOORDIV(up.exp, POW2(es));
     POSIT_UTYPE exp = up.exp - POW2(es) * reg;
 
     int ss = util_ss();

@@ -15,6 +15,9 @@ extern "C" {
 #define POW2(n) \
     (1 << (n))
 
+#define FLOORDIV(a, b) \
+    ((a) / (b) - ((a) % (b) < 0))
+
 #define MIN(a, b) \
     ((a) < (b) ? (a) : (b))
 
