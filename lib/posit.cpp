@@ -7,30 +7,6 @@
 
 using namespace std;
 
-void Posit::fromIeee(uint64_t fbits, int fes, int ffs)
-{
-    unpacked_t up;
-
-    int fexpbias = POW2(fes - 1) - 1;
-    int16_t fexp = (fbits >> ffs) & ((1 << fes) - 1);
-    uint64_t ffrac = fbits & ((1ULL << ffs) - 1);
-
-    // clip exponent
-    int rminfexp = POW2(mEs) * (-mNbits + 2);
-    int rmaxfexp = POW2(mEs) * (mNbits - 2);
-    int rfexp = MIN(MAX(fexp - fexpbias, rminfexp), rmaxfexp);
-
-    up.neg = fbits >> (fes + ffs);
-    up.exp = rfexp;
-    if (ffs <= POSIT_SIZE) {
-        up.frac = ffrac << (POSIT_SIZE - ffs);
-    } else {
-        up.frac = ffrac >> (ffs - POSIT_SIZE);
-    }
-
-    mBits = pack_posit(up, mNbits, mEs);
-}
-
 Posit::Posit(POSIT_UTYPE bits, int nbits, int es, bool nan) :
     mBits(bits),
     mNbits(nbits),
@@ -243,11 +219,6 @@ bool Posit::le(Posit& p)
 
 void Posit::set(float n)
 {
-    union {
-        float f;
-        uint32_t bits;
-    };
-
     switch (fpclassify(n)) {
     case FP_INFINITE:
         mBits = POSIT_INF;
@@ -266,8 +237,7 @@ void Posit::set(float n)
         mNan = false;
         break;
     case FP_NORMAL:
-        f = n;
-        fromIeee(bits, 8, 23);
+        mBits = pack_posit(unpack_float(n), mNbits, mEs);
         mNan = false;
         break;
     }
@@ -275,11 +245,6 @@ void Posit::set(float n)
 
 void Posit::set(double n)
 {
-    union {
-        double f;
-        uint64_t bits;
-    };
-
     switch (fpclassify(n)) {
     case FP_INFINITE:
         mBits = POSIT_INF;
@@ -298,8 +263,7 @@ void Posit::set(double n)
         mNan = false;
         break;
     case FP_NORMAL:
-        f = n;
-        fromIeee(bits, 11, 52);
+        mBits = pack_posit(unpack_double(n), mNbits, mEs);
         mNan = false;
         break;
     }

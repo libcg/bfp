@@ -19,6 +19,8 @@ float pack_float(struct unpacked_t up, int es);
 double pack_double(struct unpacked_t up, int es);
 
 struct unpacked_t unpack_posit(POSIT_UTYPE p, int nbits, int es);
+struct unpacked_t unpack_float(float f);
+struct unpacked_t unpack_double(double f);
 
 #ifdef __cplusplus
 }

@@ -10,9 +10,6 @@ private:
     int mEs;
     bool mNan;
 
-    void fromIeee(uint64_t fbits, int fes, int ffs);
-    uint64_t toIeee(int fes, int ffs);
-
     Posit(POSIT_UTYPE bits, int nbits, int es, bool nan);
     Posit(int nbits, int es, bool nan);
 

@@ -61,13 +61,13 @@ float pack_float(struct unpacked_t up, int es)
     union {
         float f;
         uint32_t u;
-    } f;
+    } un;
 
-    f.u = ffracbits;
-    f.u = fexpbits | (f.u >> 8);
-    f.u = (up.neg << 31) | (f.u >> 1);
+    un.u = ffracbits;
+    un.u = fexpbits | (un.u >> 8);
+    un.u = (up.neg << 31) | (un.u >> 1);
 
-    return f.f;
+    return un.f;
 }
 
 double pack_double(struct unpacked_t up, int es)
@@ -99,13 +99,13 @@ double pack_double(struct unpacked_t up, int es)
     union {
         double f;
         uint64_t u;
-    } f;
+    } un;
 
-    f.u = ffracbits;
-    f.u = fexpbits | (f.u >> 11);
-    f.u = ((uint64_t)up.neg << 63) | (f.u >> 1);
+    un.u = ffracbits;
+    un.u = fexpbits | (un.u >> 11);
+    un.u = ((uint64_t)up.neg << 63) | (un.u >> 1);
 
-    return f.f;
+    return un.f;
 }
 
 struct unpacked_t unpack_posit(POSIT_UTYPE p, int nbits, int es)
@@ -129,6 +129,50 @@ struct unpacked_t unpack_posit(POSIT_UTYPE p, int nbits, int es)
     up.neg = neg;
     up.exp = POW2(es) * reg + exp;
     up.frac = p << (ss + rs + es);
+
+    return up;
+}
+
+struct unpacked_t unpack_float(float f)
+{
+    struct unpacked_t up;
+
+    union {
+        float f;
+        uint32_t u;
+    } un;
+
+    un.f = f;
+
+    up.neg = un.u >> 31;
+    up.exp = ((un.u >> 23) & 0xFF) - 127;
+#if POSIT_SIZE <= 32
+    up.frac = (un.u << 9) >> (32 - POSIT_SIZE);
+#else
+    up.frac = (POSIT_UTYPE)un.u << (POSIT_SIZE - 32 + 9);
+#endif
+
+    return up;
+}
+
+struct unpacked_t unpack_double(double f)
+{
+    struct unpacked_t up;
+
+    union {
+        double f;
+        uint64_t u;
+    } un;
+
+    un.f = f;
+
+    up.neg = un.u >> 63;
+    up.exp = ((un.u >> 52) & 0x7FF) - 1023;
+#if POSIT_SIZE <= 64
+    up.frac = (un.u << 12) >> (64 - POSIT_SIZE);
+#else
+    up.frac = (POSIT_UTYPE)un.u << (POSIT_SIZE - 64 + 12);
+#endif
 
     return up;
 }
