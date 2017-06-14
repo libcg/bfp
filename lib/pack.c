@@ -32,7 +32,7 @@ POSIT_UTYPE pack_posit(struct unpacked_t up, int nbits, int es)
     }
 }
 
-float pack_float(struct unpacked_t up, int es)
+float pack_float(struct unpacked_t up)
 {
     int fexp = MIN(MAX(up.exp + 127, 0), 255);
 
@@ -70,7 +70,7 @@ float pack_float(struct unpacked_t up, int es)
     return un.f;
 }
 
-double pack_double(struct unpacked_t up, int es)
+double pack_double(struct unpacked_t up)
 {
     int fexp = MIN(MAX(up.exp + 1023, 0), 2047);
 

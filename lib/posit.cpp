@@ -279,7 +279,7 @@ float Posit::getFloat()
         return 0.f / 0.f;
     }
 
-    return pack_float(unpack_posit(mBits, mNbits, mEs), mEs);
+    return pack_float(unpack_posit(mBits, mNbits, mEs));
 }
 
 double Posit::getDouble()
@@ -292,7 +292,7 @@ double Posit::getDouble()
         return 0.0 / 0.0;
     }
 
-    return pack_double(unpack_posit(mBits, mNbits, mEs), mEs);
+    return pack_double(unpack_posit(mBits, mNbits, mEs));
 }
 
 void Posit::setBits(POSIT_UTYPE bits)
