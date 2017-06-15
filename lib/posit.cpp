@@ -1,6 +1,7 @@
 #include "posit.h"
 #include "util.h"
 #include "pack.h"
+#include "op2.h"
 
 #include <cstdio>
 #include <cmath>
@@ -156,26 +157,9 @@ Posit Posit::mul(Posit& p)
         return one().neg();
     }
 
-    unpacked_t up;
-    unpacked_t xup = unpack_posit(mBits, mNbits, mEs);
-    unpacked_t pup = unpack_posit(p.mBits, p.mNbits, p.mEs);
-
-    // fractions have a hidden bit
-    POSIT_LUTYPE xfrac = POSIT_MSB | (xup.frac >> 1);
-    POSIT_LUTYPE pfrac = POSIT_MSB | (pup.frac >> 1);
-    POSIT_UTYPE mfrac = (xfrac * pfrac) >> POSIT_SIZE;
-
-    // shift is either 0 or 1
-    int shift = CLZ(mfrac);
-
-    // clip exponent to avoid underflow and overflow
-    int rminfexp = POW2(mEs) * (-mNbits + 2);
-    int rmaxfexp = POW2(mEs) * (mNbits - 2);
-    int rfexp = MIN(MAX(xup.exp + pup.exp - shift + 1, rminfexp), rmaxfexp);
-
-    up.neg = isNeg() ^ p.isNeg();
-    up.exp = rfexp;
-    up.frac = mfrac << (shift + 1);
+    unpacked_t aup = unpack_posit(mBits, mNbits, mEs);
+    unpacked_t bup = unpack_posit(p.mBits, p.mNbits, p.mEs);
+    unpacked_t up = op2_mul(aup, bup);
 
     return Posit(pack_posit(up, mNbits, mEs), mNbits, mEs, false);
 }

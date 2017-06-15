@@ -5,7 +5,7 @@ CFLAGS = -std=c99 $(FLAGS)
 CXXFLAGS = -std=c++11 $(FLAGS)
 
 LIB_TARGET = lib/libbfp.a
-LIB_OBJ = lib/posit.o lib/pack.o lib/util.o
+LIB_OBJ = lib/posit.o lib/pack.o lib/util.o lib/op2.o
 
 TEST_TARGET = test/bfptest
 TEST_OBJ = test/test.o test/p2_test.o test/p3_test.o test/ieee_test.o \
