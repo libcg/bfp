@@ -9,7 +9,6 @@ POSIT_UTYPE pack_posit(struct unpacked_t up, int nbits, int es)
 
     // handle underflow and overflow.
     // in either case, exponent and fraction bits will disappear.
-    // FIXME setting fraction bits to all ones here is breaking tests
     int maxexp = POW2(es) * (nbits - 2);
     if (up.exp < -maxexp) {
         up.exp = -maxexp;
