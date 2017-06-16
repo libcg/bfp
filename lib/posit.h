@@ -27,7 +27,6 @@ public:
     int rs();                       // regime size in bits
     int es();                       // exponent size in bits
     int fs();                       // fraction size in bits
-    int useed();                    // value at 45°
 
     Posit zero();                   // 0
     Posit one();                    // 1

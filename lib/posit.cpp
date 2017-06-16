@@ -76,11 +76,6 @@ int Posit::fs()
     return util_fs(mBits, mNbits, mEs);
 }
 
-int Posit::useed()
-{
-    return POW2(POW2(mEs));
-}
-
 Posit Posit::zero()
 {
     return Posit(POSIT_ZERO, mNbits, mEs, false);
