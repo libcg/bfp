@@ -43,21 +43,28 @@ POSIT_UTYPE pack_posit(struct unpacked_t up, int nbits, int es)
 
 float pack_float(struct unpacked_t up)
 {
-    int fexp = MIN(MAX(up.exp + 127, 0), 255);
+    int fexp = up.exp + 127;
 
     // left aligned
     uint32_t fexpbits;
     uint32_t ffracbits;
 
-    if (fexp < 1) {
-        // TODO: support subnormals (exponent 0)
-        // underflow, set minimum value
-        fexpbits = 1 << 24;
-        ffracbits = 0;
-    } else if (fexp > 254) {
+    if (fexp > 254) {
         // overflow, set maximum value
         fexpbits = 254 << 24;
         ffracbits = -1;
+    } else if (fexp < 1) {
+        // underflow, pack as denormal
+        fexpbits = 0;
+#if POSIT_SIZE <= 32
+        ffracbits = (uint32_t)(POSIT_MSB | (up.frac >> 1)) <<
+                    (32 - POSIT_SIZE + fexp);
+#else
+        ffracbits = (POSIT_MSB | (up.frac >> 1)) >>
+                    (POSIT_SIZE - 32 - fexp);
+#endif
+        // don't underflow to zero
+        ffracbits += (ffracbits == 0);
     } else {
         fexpbits = (fexp & 0xFF) << 24;
 #if POSIT_SIZE <= 32
@@ -81,21 +88,28 @@ float pack_float(struct unpacked_t up)
 
 double pack_double(struct unpacked_t up)
 {
-    int fexp = MIN(MAX(up.exp + 1023, 0), 2047);
+    int fexp = up.exp + 1023;
 
     // left aligned
     uint64_t fexpbits;
     uint64_t ffracbits;
 
-    if (fexp < 1) {
-        // TODO: support subnormals (exponent 0)
-        // underflow, set minimum value
-        fexpbits = (uint64_t)1 << 53;
-        ffracbits = 0;
-    } else if (fexp > 2046) {
+    if (fexp > 2046) {
         // overflow, set maximum value
         fexpbits = (uint64_t)2046 << 53;
         ffracbits = -1;
+    } else if (fexp < 1) {
+        // underflow, pack as denormal
+        fexpbits = 0;
+#if POSIT_SIZE <= 64
+        ffracbits = (uint64_t)(POSIT_MSB | (up.frac >> 1)) <<
+                    (64 - POSIT_SIZE + fexp);
+#else
+        ffracbits = (POSIT_MSB | (up.frac >> 1)) >>
+                    (POSIT_SIZE - 64 - fexp);
+#endif
+        // don't underflow to zero
+        ffracbits += (ffracbits == 0);
     } else {
         fexpbits = (uint64_t)(fexp & 0x7FF) << 53;
 #if POSIT_SIZE <= 64
