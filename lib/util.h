@@ -38,7 +38,6 @@ int util_es(POSIT_UTYPE p, int nbits, int es);
 int util_fs(POSIT_UTYPE p, int nbits, int es);
 
 POSIT_UTYPE util_neg(POSIT_UTYPE p, int nbits);
-POSIT_UTYPE util_rec(POSIT_UTYPE p, int nbits, int es);
 
 #ifdef __cplusplus
 }

@@ -103,7 +103,7 @@ Posit Posit::neg()
 
 Posit Posit::rec()
 {
-    return Posit(util_rec(mBits, mNbits, mEs), mNbits, mEs, false);
+    return Posit(POSIT_ONE, mNbits, mEs, false).div(*this);
 }
 
 Posit Posit::add(Posit& p)

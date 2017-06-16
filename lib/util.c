@@ -56,11 +56,3 @@ POSIT_UTYPE util_neg(POSIT_UTYPE p, int nbits)
     // reverse all bits and add one
     return LMASK(-LMASK(p, nbits), nbits);
 }
-
-POSIT_UTYPE util_rec(POSIT_UTYPE p, int nbits, int es)
-{
-    int ss = util_ss();
-
-    // FIXME fraction bits are wrong
-    return LMASK((p ^ (POSIT_MASK >> ss)) + 1, nbits);
-}
