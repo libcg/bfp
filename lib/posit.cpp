@@ -140,16 +140,8 @@ Posit Posit::mul(Posit& p)
         return (p.isInf() ? nan() : zero());
     } else if (p.isZero()) {
         return (isInf() ? nan() : zero());
-    } else if (isOne()) {
-        return (isNeg() ? p.neg() : p);
-    } else if (p.isOne()) {
-        return (p.isNeg() ? neg() : *this);
     } else if (isInf() || p.isInf()) {
         return inf();
-    } else if (rec().eq(p)) {
-        return one();
-    } else if (rec().neg().eq(p)) {
-        return one().neg();
     }
 
     unpacked_t aup = unpack_posit(mBits, mNbits, mEs);
