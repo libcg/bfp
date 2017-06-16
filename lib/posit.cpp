@@ -212,12 +212,7 @@ void Posit::set(float n)
         mBits = POSIT_ZERO;
         mNan = false;
         break;
-    case FP_SUBNORMAL:
-        // TODO: support subnormals
-        mBits = POSIT_ZERO;
-        mNan = false;
-        break;
-    case FP_NORMAL:
+    default:
         mBits = pack_posit(unpack_float(n), mNbits, mEs);
         mNan = false;
         break;
@@ -238,12 +233,7 @@ void Posit::set(double n)
         mBits = POSIT_ZERO;
         mNan = false;
         break;
-    case FP_SUBNORMAL:
-        // TODO: support subnormals
-        mBits = POSIT_ZERO;
-        mNan = false;
-        break;
-    case FP_NORMAL:
+    default:
         mBits = pack_posit(unpack_double(n), mNbits, mEs);
         mNan = false;
         break;

@@ -9,7 +9,7 @@ extern "C" {
 
 #ifdef __GNUC__
 #define CLZ(n) \
-    __builtin_clz(n)
+    ((n) == 0 ? POSIT_SIZE : __builtin_clz(n))
 #endif
 
 #define POW2(n) \

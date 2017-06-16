@@ -145,6 +145,7 @@ struct unpacked_t unpack_posit(POSIT_UTYPE p, int nbits, int es)
 struct unpacked_t unpack_float(float f)
 {
     struct unpacked_t up;
+    int bias = 127;
 
     union {
         float f;
@@ -154,12 +155,19 @@ struct unpacked_t unpack_float(float f)
     un.f = f;
 
     up.neg = un.u >> 31;
-    up.exp = ((un.u >> 23) & 0xFF) - 127;
+    up.exp = ((un.u >> 23) & 0xFF) - bias;
 #if POSIT_SIZE <= 32
     up.frac = (un.u << 9) >> (32 - POSIT_SIZE);
 #else
     up.frac = (POSIT_UTYPE)un.u << (POSIT_SIZE - 32 + 9);
 #endif
+
+    if (up.exp == -bias) {
+        // normalize
+        // FIXME: some precision is lost if frac was downcasted
+        up.exp -= CLZ(up.frac) + 1;
+        up.frac <<= CLZ(up.frac) + 1;
+    }
 
     return up;
 }
@@ -167,6 +175,7 @@ struct unpacked_t unpack_float(float f)
 struct unpacked_t unpack_double(double f)
 {
     struct unpacked_t up;
+    int bias = 1023;
 
     union {
         double f;
@@ -176,12 +185,19 @@ struct unpacked_t unpack_double(double f)
     un.f = f;
 
     up.neg = un.u >> 63;
-    up.exp = ((un.u >> 52) & 0x7FF) - 1023;
+    up.exp = ((un.u >> 52) & 0x7FF) - bias;
 #if POSIT_SIZE <= 64
     up.frac = (un.u << 12) >> (64 - POSIT_SIZE);
 #else
     up.frac = (POSIT_UTYPE)un.u << (POSIT_SIZE - 64 + 12);
 #endif
+
+    if (up.exp == -bias) {
+        // normalize
+        // FIXME: some precision is lost if frac was downcasted
+        up.exp -= CLZ(up.frac) + 1;
+        up.frac <<= CLZ(up.frac) + 1;
+    }
 
     return up;
 }
