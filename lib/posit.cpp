@@ -153,10 +153,20 @@ Posit Posit::mul(Posit& p)
 
 Posit Posit::div(Posit& p)
 {
-    // no loss on reciprocation!
-    Posit rp = p.rec();
+    // fast exit
+    if (isInf()) {
+        return (p.isInf() ? nan() : inf());
+    } else if (p.isZero()) {
+        return (isZero() ? nan() : inf());
+    } else if (isZero() || p.isInf()) {
+        return zero();
+    }
 
-    return mul(rp);
+    unpacked_t aup = unpack_posit(mBits, mNbits, mEs);
+    unpacked_t bup = unpack_posit(p.mBits, p.mNbits, p.mEs);
+    unpacked_t up = op2_div(aup, bup);
+
+    return Posit(pack_posit(up, mNbits, mEs), mNbits, mEs, false);
 }
 
 bool Posit::eq(Posit& p)

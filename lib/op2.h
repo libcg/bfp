@@ -8,6 +8,7 @@ extern "C" {
 #include "pack.h"
 
 struct unpacked_t op2_mul(struct unpacked_t a, struct unpacked_t b);
+struct unpacked_t op2_div(struct unpacked_t a, struct unpacked_t b);
 
 #ifdef __cplusplus
 }
