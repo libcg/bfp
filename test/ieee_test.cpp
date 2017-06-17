@@ -1,4 +1,5 @@
 #include "test.h"
+#include "pack.h"
 
 #define EPSILON     0.0001
 
@@ -10,6 +11,18 @@ static void TestIeeeFloat(CuTest* tc)
         p.set(i);
         float r = p.getFloat();
         CuAssertTrue(tc, i == r);
+    }
+}
+
+static void TestIeeeFloatPackDenormal(CuTest* tc)
+{
+    union {
+        float f;
+        uint32_t u;
+    };
+
+    for (u = 0x00000001; u < 0x00800000; u++) {
+        CuAssertTrue(tc, f == pack_float(unpack_float(f)));
     }
 }
 
@@ -29,6 +42,7 @@ CuSuite* TestIeeeGetSuite(void)
     CuSuite* suite = CuSuiteNew();
 
     SUITE_ADD_TEST(suite, TestIeeeFloat);
+    SUITE_ADD_TEST(suite, TestIeeeFloatPackDenormal);
     SUITE_ADD_TEST(suite, TestIeeeDouble);
 
     return suite;

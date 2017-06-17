@@ -3,6 +3,7 @@
 
 #include "CuTest.h"
 #include "posit.h"
+#include <stdio.h>
 
 #define NAN     (-1)
 

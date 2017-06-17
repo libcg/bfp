@@ -57,14 +57,11 @@ float pack_float(struct unpacked_t up)
         // underflow, pack as denormal
         fexpbits = 0;
 #if POSIT_SIZE <= 32
-        ffracbits = (uint32_t)(POSIT_MSB | (up.frac >> 1)) <<
-                    (32 - POSIT_SIZE + fexp);
+        ffracbits = (uint32_t)(POSIT_MSB | (up.frac >> 1)) << (32 - POSIT_SIZE);
 #else
-        ffracbits = (POSIT_MSB | (up.frac >> 1)) >>
-                    (POSIT_SIZE - 32 - fexp);
+        ffracbits = (POSIT_MSB | (up.frac >> 1)) >> (POSIT_SIZE - 32);
 #endif
-        // don't underflow to zero
-        ffracbits += (ffracbits == 0);
+        ffracbits >>= -fexp;
     } else {
         fexpbits = (fexp & 0xFF) << 24;
 #if POSIT_SIZE <= 32
@@ -82,6 +79,11 @@ float pack_float(struct unpacked_t up)
     un.u = ffracbits;
     un.u = fexpbits | (un.u >> 8);
     un.u = (up.neg << 31) | (un.u >> 1);
+
+    // don't underflow to zero
+    if ((un.u << 1) == 0) {
+        un.u++;
+    }
 
     return un.f;
 }
@@ -102,14 +104,11 @@ double pack_double(struct unpacked_t up)
         // underflow, pack as denormal
         fexpbits = 0;
 #if POSIT_SIZE <= 64
-        ffracbits = (uint64_t)(POSIT_MSB | (up.frac >> 1)) <<
-                    (64 - POSIT_SIZE + fexp);
+        ffracbits = (uint64_t)(POSIT_MSB | (up.frac >> 1)) << (64 - POSIT_SIZE);
 #else
-        ffracbits = (POSIT_MSB | (up.frac >> 1)) >>
-                    (POSIT_SIZE - 64 - fexp);
+        ffracbits = (POSIT_MSB | (up.frac >> 1)) >> (POSIT_SIZE - 64);
 #endif
-        // don't underflow to zero
-        ffracbits += (ffracbits == 0);
+        ffracbits >>= -fexp;
     } else {
         fexpbits = (uint64_t)(fexp & 0x7FF) << 53;
 #if POSIT_SIZE <= 64
@@ -127,6 +126,11 @@ double pack_double(struct unpacked_t up)
     un.u = ffracbits;
     un.u = fexpbits | (un.u >> 11);
     un.u = ((uint64_t)up.neg << 63) | (un.u >> 1);
+
+    // don't underflow to zero
+    if ((un.u << 1) == 0) {
+        un.u++;
+    }
 
     return un.f;
 }
@@ -179,7 +183,7 @@ struct unpacked_t unpack_float(float f)
     if (up.exp == -bias) {
         // normalize
         // FIXME: some precision is lost if frac was downcasted
-        up.exp -= CLZ(up.frac) + 1;
+        up.exp -= CLZ(up.frac);
         up.frac <<= CLZ(up.frac) + 1;
     }
 
@@ -209,7 +213,7 @@ struct unpacked_t unpack_double(double f)
     if (up.exp == -bias) {
         // normalize
         // FIXME: some precision is lost if frac was downcasted
-        up.exp -= CLZ(up.frac) + 1;
+        up.exp -= CLZ(up.frac);
         up.frac <<= CLZ(up.frac) + 1;
     }
 
