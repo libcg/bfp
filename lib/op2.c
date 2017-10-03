@@ -11,13 +11,13 @@ struct unpacked_t op2_mul(struct unpacked_t a, struct unpacked_t b)
     POSIT_UTYPE frac = (afrac * bfrac) >> POSIT_SIZE;
     POSIT_STYPE exp = a.exp + b.exp + 1;
 
-    if ((POSIT_STYPE)frac >= 0) {
+    if ((frac & POSIT_MSB) == 0) {
         exp--;
         frac <<= 1;
     }
 
     r.neg = a.neg ^ b.neg;
-    r.exp = a.exp + b.exp + 1;
+    r.exp = exp;
     r.frac = frac << 1;
 
     return r;
