@@ -285,12 +285,12 @@ double Posit::getDouble()
 
 void Posit::setBits(POSIT_UTYPE bits)
 {
-    mBits = bits << (POSIT_SIZE - mNbits);
+    mBits = bits << (POSIT_WIDTH - mNbits);
 }
 
 POSIT_UTYPE Posit::getBits()
 {
-    return mBits >> (POSIT_SIZE - mNbits);
+    return mBits >> (POSIT_WIDTH - mNbits);
 }
 
 void Posit::print()
@@ -299,19 +299,19 @@ void Posit::print()
 
     printf("{%d, %d} ", mNbits, mEs);
 
-    for (int i = POSIT_SIZE - 1; i >= POSIT_SIZE - mNbits; i--) {
+    for (int i = POSIT_WIDTH - 1; i >= POSIT_WIDTH - mNbits; i--) {
         printf("%d", (mBits >> i) & 1);
     }
 
     printf(" -> ");
     printf(isNeg() || isInf() ? "-" : "+");
 
-    for (int i = POSIT_SIZE - ss() - 1; i >= POSIT_SIZE - mNbits; i--) {
+    for (int i = POSIT_WIDTH - ss() - 1; i >= POSIT_WIDTH - mNbits; i--) {
         printf("%d", (p.mBits >> i) & 1);
 
-        if (i != POSIT_SIZE - mNbits &&
-            ((i == POSIT_SIZE - ss() - p.rs()) ||
-             (i == POSIT_SIZE - ss() - p.rs() - mEs))) {
+        if (i != POSIT_WIDTH - mNbits &&
+            ((i == POSIT_WIDTH - ss() - p.rs()) ||
+             (i == POSIT_WIDTH - ss() - p.rs() - mEs))) {
             printf(" ");
         }
     }

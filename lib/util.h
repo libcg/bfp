@@ -9,7 +9,7 @@ extern "C" {
 
 #ifdef __GNUC__
 #define CLZ(n) \
-    ((n) == 0 ? POSIT_SIZE : __builtin_clz(n))
+    ((n) == 0 ? POSIT_WIDTH : __builtin_clz(n))
 #endif
 
 #define POW2(n) \
@@ -25,7 +25,7 @@ extern "C" {
     ((a) > (b) ? (a) : (b))
 
 #define LMASK(bits, size) \
-    ((bits) & (POSIT_MASK << (POSIT_SIZE - (size))))
+    ((bits) & (POSIT_MASK << (POSIT_WIDTH - (size))))
 
 #define HIDDEN_BIT(frac) \
     (POSIT_MSB | ((frac) >> 1))

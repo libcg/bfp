@@ -18,7 +18,7 @@ static struct unpacked_t add(struct unpacked_t a, struct unpacked_t b, bool neg)
     }
 
     frac = afrac + bfrac;
-    if (frac >> POSIT_SIZE != 0) {
+    if (frac >> POSIT_WIDTH != 0) {
         r.exp++;
         frac >>= 1;
     }
@@ -61,7 +61,7 @@ struct unpacked_t op2_mul(struct unpacked_t a, struct unpacked_t b)
 
     POSIT_LUTYPE afrac = HIDDEN_BIT(a.frac);
     POSIT_LUTYPE bfrac = HIDDEN_BIT(b.frac);
-    POSIT_UTYPE frac = (afrac * bfrac) >> POSIT_SIZE;
+    POSIT_UTYPE frac = (afrac * bfrac) >> POSIT_WIDTH;
     POSIT_STYPE exp = a.exp + b.exp + 1;
 
     if ((frac & POSIT_MSB) == 0) {
@@ -91,7 +91,7 @@ struct unpacked_t op2_div(struct unpacked_t a, struct unpacked_t b)
 
     r.neg = a.neg ^ b.neg;
     r.exp = exp;
-    r.frac = (afrac << POSIT_SIZE) / bfrac;
+    r.frac = (afrac << POSIT_WIDTH) / bfrac;
 
     return r;
 }

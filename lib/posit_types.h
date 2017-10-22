@@ -11,7 +11,7 @@ extern "C" {
 #define POSIT_LUTYPE    uint64_t
 #define POSIT_UTYPE     uint32_t
 #define POSIT_STYPE     int32_t
-#define POSIT_SIZE      32
+#define POSIT_WIDTH     32
 #define POSIT_ZERO      ((POSIT_UTYPE)0x00000000)
 #define POSIT_ONE       ((POSIT_UTYPE)0x40000000)
 #define POSIT_MONE      ((POSIT_UTYPE)0xC0000000)
