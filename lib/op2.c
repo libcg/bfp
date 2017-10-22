@@ -18,7 +18,7 @@ static struct unpacked_t add(struct unpacked_t a, struct unpacked_t b, bool neg)
     }
 
     frac = afrac + bfrac;
-    if (frac >> 32 != 0) {
+    if (frac >> POSIT_SIZE != 0) {
         r.exp++;
         frac >>= 1;
     }
