@@ -121,16 +121,33 @@ Posit Posit::add(Posit& p)
         return zero();
     }
 
-    // TODO implement
-    return *this;
+    unpacked_t aup = unpack_posit(mBits, mNbits, mEs);
+    unpacked_t bup = unpack_posit(p.mBits, p.mNbits, p.mEs);
+    unpacked_t up = op2_add(aup, bup);
+
+    return Posit(pack_posit(up, mNbits, mEs), mNbits, mEs, false);
 }
 
 Posit Posit::sub(Posit& p)
 {
-    // no loss on negation
-    Posit np = p.neg();
+    // fast exit
+    if (isZero()) {
+        return p.neg();
+    } else if (p.isZero()) {
+        return *this;
+    } else if (isInf() && p.isInf()) {
+        return nan();
+    } else if (isInf() || p.isInf()) {
+        return inf();
+    } else if (eq(p)) {
+        return zero();
+    }
 
-    return add(np);
+    unpacked_t aup = unpack_posit(mBits, mNbits, mEs);
+    unpacked_t bup = unpack_posit(p.mBits, p.mNbits, p.mEs);
+    unpacked_t up = op2_sub(aup, bup);
+
+    return Posit(pack_posit(up, mNbits, mEs), mNbits, mEs, false);
 }
 
 Posit Posit::mul(Posit& p)

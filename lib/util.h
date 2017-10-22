@@ -27,6 +27,9 @@ extern "C" {
 #define LMASK(bits, size) \
     ((bits) & (POSIT_MASK << (POSIT_SIZE - (size))))
 
+#define HIDDEN_BIT(frac) \
+    (POSIT_MSB | ((frac) >> 1))
+
 bool util_is_zero(POSIT_UTYPE p);
 bool util_is_one(POSIT_UTYPE p);
 bool util_is_inf(POSIT_UTYPE p);
