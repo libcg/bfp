@@ -33,8 +33,8 @@ static struct unpacked_t sub(struct unpacked_t a, struct unpacked_t b, bool neg)
 {
     struct unpacked_t r;
 
-    POSIT_LUTYPE afrac = HIDDEN_BIT(a.frac);
-    POSIT_LUTYPE bfrac = HIDDEN_BIT(b.frac);
+    POSIT_UTYPE afrac = HIDDEN_BIT(a.frac);
+    POSIT_UTYPE bfrac = HIDDEN_BIT(b.frac);
     POSIT_UTYPE frac;
 
     if (a.exp > b.exp || (a.exp == b.exp && a.frac > b.frac)) {
