@@ -17,10 +17,17 @@ POSIT_UTYPE pack_posit(struct unpacked_t up, int nbits, int es)
     }
 
     int reg = FLOORDIV(up.exp, POW2(es));
-    POSIT_UTYPE exp = up.exp - POW2(es) * reg;
-
     int ss = util_ss();
     int rs = MAX(-reg + 1, reg + 2);
+
+    // FIXME: round exponent up if needed
+    if (ss + rs + es >= nbits && up.frac >= POSIT_MSB) {
+        up.exp++;
+        reg = FLOORDIV(up.exp, POW2(es));
+        rs = MAX(-reg + 1, reg + 2);
+    }
+
+    POSIT_UTYPE exp = up.exp - POW2(es) * reg;
 
     if (reg < 0) {
         regbits = POSIT_MSB >> -reg;
