@@ -28,6 +28,7 @@
         }                                                                      \
     }
 
+void genSubTable(POSIT_STYPE *sub_table, POSIT_STYPE *add_table, int size);
 void genDivTable(POSIT_STYPE *div_table, POSIT_STYPE *mul_table, int size);
 
 #endif

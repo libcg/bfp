@@ -6,6 +6,23 @@ CuSuite* TestP2GetSuite();
 CuSuite* TestP3GetSuite();
 CuSuite* TestIeeeGetSuite();
 
+void genSubTable(POSIT_STYPE *sub_table, POSIT_STYPE *add_table, int size)
+{
+    for (int i = 0; i < size; i++) {
+        int k;
+
+        if (i == 0) {
+            k = 0;
+        } else {
+            k = size / 2 - (i - size / 2);
+        }
+
+        for (int j = 0; j < size; j++) {
+            sub_table[k * size + j] = add_table[i * size + j];
+        }
+    }
+}
+
 void genDivTable(POSIT_STYPE *div_table, POSIT_STYPE *mul_table, int size)
 {
     for (int i = 0; i < size; i++) {
