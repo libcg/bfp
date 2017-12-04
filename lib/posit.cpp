@@ -318,3 +318,23 @@ void Posit::print()
 
     printf(" = %lg\n", getDouble());
 }
+
+Posit operator+(const Posit& a, const Posit& b)
+{
+    return a.add(b);
+}
+
+Posit operator-(const Posit& a, const Posit& b)
+{
+    return a.sub(b);
+}
+
+Posit operator*(const Posit& a, const Posit& b)
+{
+    return a.mul(b);
+}
+
+Posit operator/(const Posit& a, const Posit& b)
+{
+    return a.div(b);
+}
