@@ -16,42 +16,42 @@ private:
 public:
     Posit(int nbits, int es);
 
-    bool isZero();                  // check for 0
-    bool isOne();                   // check for +/- 1
-    bool isInf();                   // check for +/- infinity
-    bool isNeg();                   // check for negative
-    bool isNan();                   // check for NaN
+    bool isZero() const;                  // check for 0
+    bool isOne() const;                   // check for +/- 1
+    bool isInf() const;                   // check for +/- infinity
+    bool isNeg() const;                   // check for negative
+    bool isNan() const;                   // check for NaN
 
-    int nbits();                    // size in bits
-    int ss();                       // sign size in bits
-    int rs();                       // regime size in bits
-    int es();                       // exponent size in bits
-    int fs();                       // fraction size in bits
+    int nbits() const;                    // size in bits
+    int ss() const;                       // sign size in bits
+    int rs() const;                       // regime size in bits
+    int es() const;                       // exponent size in bits
+    int fs() const;                       // fraction size in bits
 
-    Posit zero();                   // 0
-    Posit one();                    // 1
-    Posit inf();                    // +/-inf
-    Posit nan();                    // NaN
+    Posit zero() const;                   // 0
+    Posit one() const;                    // 1
+    Posit inf() const;                    // +/-inf
+    Posit nan() const;                    // NaN
 
-    Posit neg();                    // -x
-    Posit rec();                    // /x
+    Posit neg() const;                    // -x
+    Posit rec() const;                    // /x
 
-    Posit add(Posit& p);            // x + p
-    Posit sub(Posit& p);            // x - p as x + -p
-    Posit mul(Posit& p);            // x * p
-    Posit div(Posit& p);            // x / p as x * /p
+    Posit add(const Posit& p) const;            // x + p
+    Posit sub(const Posit& p) const;            // x - p as x + -p
+    Posit mul(const Posit& p) const;            // x * p
+    Posit div(const Posit& p) const;            // x / p as x * /p
 
-    bool eq(Posit& p);              // x == p
-    bool gt(Posit& p);              // x > p
-    bool ge(Posit& p);              // x >= p
-    bool lt(Posit& p);              // x < p
-    bool le(Posit& p);              // x <= p
+    bool eq(const Posit& p) const;              // x == p
+    bool gt(const Posit& p) const;              // x > p
+    bool ge(const Posit& p) const;              // x >= p
+    bool lt(const Posit& p) const;              // x < p
+    bool le(const Posit& p) const;              // x <= p
 
     void set(float n);              // x = n
     void set(double n);             // x = n
 
-    float getFloat();               // n = x
-    double getDouble();             // n = x
+    float getFloat() const;               // n = x
+    double getDouble() const;             // n = x
 
     // debug
     void setBits(POSIT_UTYPE bits);
