@@ -20,6 +20,7 @@ public:
     static void set_default(int nbits, int es);
 
     Posit();
+    Posit(double v);
     Posit(int nbits, int es);
 
     bool isZero() const;                  // check for 0

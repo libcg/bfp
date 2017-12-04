@@ -35,6 +35,11 @@ Posit::Posit() : Posit(default_nbits, default_es)
 {
 }
 
+Posit::Posit(double v) : Posit(default_nbits, default_es)
+{
+    set(v);
+}
+
 Posit::Posit(int nbits, int es) :
     Posit(nbits, es, false)
 {
