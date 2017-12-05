@@ -357,3 +357,37 @@ Posit operator/(const Posit& a, const Posit& b)
 {
     return a.div(b);
 }
+
+Posit operator-(const Posit& a)
+{
+    return a.neg();
+}
+
+bool operator<(const Posit&a , const Posit& b)
+{
+    return a.lt(b);
+}
+
+bool operator<=(const Posit&a , const Posit& b)
+{
+    return a.le(b);
+}
+
+bool operator>(const Posit&a , const Posit& b)
+{
+    return a.gt(b);
+}
+
+bool operator>=(const Posit&a , const Posit& b)
+{
+    return a.ge(b);
+}
+bool operator==(const Posit&a , const Posit& b)
+{
+    return a.eq(b);
+}
+
+bool operator!=(const Posit&a , const Posit& b)
+{
+    return !a.eq(b);
+}

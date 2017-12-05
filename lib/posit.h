@@ -72,4 +72,13 @@ Posit operator-(const Posit& a, const Posit& b);
 Posit operator*(const Posit& a, const Posit& b);
 Posit operator/(const Posit& a, const Posit& b);
 
+Posit operator-(const Posit& a);
+
+bool operator<(const Posit&a , const Posit& b);
+bool operator<=(const Posit&a , const Posit& b);
+bool operator>(const Posit&a , const Posit& b);
+bool operator>=(const Posit&a , const Posit& b);
+bool operator==(const Posit&a , const Posit& b);
+bool operator!=(const Posit&a , const Posit& b);
+
 #endif
