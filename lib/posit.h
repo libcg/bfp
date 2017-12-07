@@ -43,19 +43,19 @@ public:
     Posit neg() const;                    // -x
     Posit rec() const;                    // /x
 
-    Posit add(const Posit& p) const;            // x + p
-    Posit sub(const Posit& p) const;            // x - p as x + -p
-    Posit mul(const Posit& p) const;            // x * p
-    Posit div(const Posit& p) const;            // x / p as x * /p
+    Posit add(const Posit& p) const;      // x + p
+    Posit sub(const Posit& p) const;      // x - p as x + -p
+    Posit mul(const Posit& p) const;      // x * p
+    Posit div(const Posit& p) const;      // x / p as x * /p
 
-    bool eq(const Posit& p) const;              // x == p
-    bool gt(const Posit& p) const;              // x > p
-    bool ge(const Posit& p) const;              // x >= p
-    bool lt(const Posit& p) const;              // x < p
-    bool le(const Posit& p) const;              // x <= p
+    bool eq(const Posit& p) const;        // x == p
+    bool gt(const Posit& p) const;        // x > p
+    bool ge(const Posit& p) const;        // x >= p
+    bool lt(const Posit& p) const;        // x < p
+    bool le(const Posit& p) const;        // x <= p
 
-    void set(float n);              // x = n
-    void set(double n);             // x = n
+    void set(float n);                    // x = n
+    void set(double n);                   // x = n
 
     float getFloat() const;               // n = x
     double getDouble() const;             // n = x
