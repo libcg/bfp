@@ -66,7 +66,6 @@ public:
     void print();
 };
 
-
 Posit operator+(const Posit& a, const Posit& b);
 Posit operator-(const Posit& a, const Posit& b);
 Posit operator*(const Posit& a, const Posit& b);

@@ -11,7 +11,6 @@ using namespace std;
 int Posit::sDefaultNbits = 32;
 int Posit::sDefaultEs = 2;
 
-
 void Posit::setDefault(int nbits, int es)
 {
     sDefaultNbits = nbits;
