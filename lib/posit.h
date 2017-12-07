@@ -10,14 +10,14 @@ private:
     int mEs;
     bool mNan;
 
-    static int default_nbits;
-    static int default_es;
+    static int sDefaultNbits;
+    static int sDefaultEs;
 
     Posit(POSIT_UTYPE bits, int nbits, int es, bool nan);
     Posit(int nbits, int es, bool nan);
 
 public:
-    static void set_default(int nbits, int es);
+    static void setDefault(int nbits, int es);
 
     Posit();
     Posit(double v);

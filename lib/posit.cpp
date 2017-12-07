@@ -8,14 +8,14 @@
 
 using namespace std;
 
-int Posit::default_nbits = 32;
-int Posit::default_es = 2;
+int Posit::sDefaultNbits = 32;
+int Posit::sDefaultEs = 2;
 
 
-void Posit::set_default(int nbits, int es)
+void Posit::setDefault(int nbits, int es)
 {
-    default_nbits = nbits;
-    default_es = es;
+    sDefaultNbits = nbits;
+    sDefaultEs = es;
 }
 
 Posit::Posit(POSIT_UTYPE bits, int nbits, int es, bool nan) :
@@ -31,11 +31,11 @@ Posit::Posit(int nbits, int es, bool nan) :
 {
 }
 
-Posit::Posit() : Posit(default_nbits, default_es)
+Posit::Posit() : Posit(sDefaultNbits, sDefaultEs)
 {
 }
 
-Posit::Posit(double v) : Posit(default_nbits, default_es)
+Posit::Posit(double v) : Posit(sDefaultNbits, sDefaultEs)
 {
     set(v);
 }
