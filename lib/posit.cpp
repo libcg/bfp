@@ -8,6 +8,15 @@
 
 using namespace std;
 
+int Posit::sDefaultNbits = 32;
+int Posit::sDefaultEs = 2;
+
+void Posit::setDefault(int nbits, int es)
+{
+    sDefaultNbits = nbits;
+    sDefaultEs = es;
+}
+
 Posit::Posit(POSIT_UTYPE bits, int nbits, int es, bool nan) :
     mBits(bits),
     mNbits(nbits),
@@ -21,92 +30,101 @@ Posit::Posit(int nbits, int es, bool nan) :
 {
 }
 
+Posit::Posit() : Posit(sDefaultNbits, sDefaultEs)
+{
+}
+
+Posit::Posit(double v) : Posit(sDefaultNbits, sDefaultEs)
+{
+    set(v);
+}
+
 Posit::Posit(int nbits, int es) :
     Posit(nbits, es, false)
 {
 }
 
-bool Posit::isZero()
+bool Posit::isZero() const
 {
     return util_is_zero(mBits);
 }
 
-bool Posit::isOne()
+bool Posit::isOne() const
 {
     return util_is_one(mBits);
 }
 
-bool Posit::isInf()
+bool Posit::isInf() const
 {
     return util_is_inf(mBits);
 }
 
-bool Posit::isNeg()
+bool Posit::isNeg() const
 {
     return util_is_neg(mBits);
 }
 
-bool Posit::isNan()
+bool Posit::isNan() const
 {
     return mNan;
 }
 
-int Posit::nbits()
+int Posit::nbits() const
 {
     return mNbits;
 }
 
-int Posit::ss()
+int Posit::ss() const
 {
     return util_ss();
 }
 
-int Posit::rs()
+int Posit::rs() const
 {
     return util_rs(mBits, mNbits);
 }
 
-int Posit::es()
+int Posit::es() const
 {
     return util_es(mBits, mNbits, mEs);
 }
 
-int Posit::fs()
+int Posit::fs() const
 {
     return util_fs(mBits, mNbits, mEs);
 }
 
-Posit Posit::zero()
+Posit Posit::zero() const
 {
     return Posit(POSIT_ZERO, mNbits, mEs, false);
 }
 
-Posit Posit::one()
+Posit Posit::one() const
 {
     return Posit(POSIT_ONE, mNbits, mEs, false);
 }
 
-Posit Posit::inf()
+Posit Posit::inf() const
 {
     return Posit(POSIT_INF, mNbits, mEs, false);
 }
 
-Posit Posit::nan()
+Posit Posit::nan() const
 {
     return Posit(mNbits, mEs, true);
 }
 
-Posit Posit::neg()
+Posit Posit::neg() const
 {
     return Posit(util_neg(mBits, mNbits), mNbits, mEs, false);
 }
 
-Posit Posit::rec()
+Posit Posit::rec() const
 {
     return Posit(POSIT_ONE, mNbits, mEs, false).div(*this);
 }
 
-Posit Posit::add(Posit& p)
+Posit Posit::add(const Posit& p) const
 {
     // fast exit
     if (isZero()) {
@@ -128,7 +146,7 @@ Posit Posit::add(Posit& p)
     return Posit(pack_posit(up, mNbits, mEs), mNbits, mEs, false);
 }
 
-Posit Posit::sub(Posit& p)
+Posit Posit::sub(const Posit& p) const
 {
     // fast exit
     if (isZero()) {
@@ -150,7 +168,7 @@ Posit Posit::sub(Posit& p)
     return Posit(pack_posit(up, mNbits, mEs), mNbits, mEs, false);
 }
 
-Posit Posit::mul(Posit& p)
+Posit Posit::mul(const Posit& p) const
 {
     // fast exit
     if (isZero()) {
@@ -168,7 +186,7 @@ Posit Posit::mul(Posit& p)
     return Posit(pack_posit(up, mNbits, mEs), mNbits, mEs, false);
 }
 
-Posit Posit::div(Posit& p)
+Posit Posit::div(const Posit& p) const
 {
     // fast exit
     if (isInf()) {
@@ -186,12 +204,12 @@ Posit Posit::div(Posit& p)
     return Posit(pack_posit(up, mNbits, mEs), mNbits, mEs, false);
 }
 
-bool Posit::eq(Posit& p)
+bool Posit::eq(const Posit& p) const
 {
     return mBits == p.mBits;
 }
 
-bool Posit::gt(Posit& p)
+bool Posit::gt(const Posit& p) const
 {
     if (isInf() || p.isInf()) {
         return false;
@@ -200,17 +218,17 @@ bool Posit::gt(Posit& p)
     return mBits > p.mBits;
 }
 
-bool Posit::ge(Posit& p)
+bool Posit::ge(const Posit& p) const
 {
     return gt(p) || eq(p);
 }
 
-bool Posit::lt(Posit& p)
+bool Posit::lt(const Posit& p) const
 {
     return !gt(p) && !eq(p);
 }
 
-bool Posit::le(Posit& p)
+bool Posit::le(const Posit& p) const
 {
     return !gt(p);
 }
@@ -257,7 +275,7 @@ void Posit::set(double n)
     }
 }
 
-float Posit::getFloat()
+float Posit::getFloat() const
 {
     if (isZero()) {
         return 0.f;
@@ -270,7 +288,7 @@ float Posit::getFloat()
     return pack_float(unpack_posit(mBits, mNbits, mEs));
 }
 
-double Posit::getDouble()
+double Posit::getDouble() const
 {
     if (isZero()) {
         return 0.0;
@@ -317,4 +335,58 @@ void Posit::print()
     }
 
     printf(" = %lg\n", getDouble());
+}
+
+Posit operator+(const Posit& a, const Posit& b)
+{
+    return a.add(b);
+}
+
+Posit operator-(const Posit& a, const Posit& b)
+{
+    return a.sub(b);
+}
+
+Posit operator*(const Posit& a, const Posit& b)
+{
+    return a.mul(b);
+}
+
+Posit operator/(const Posit& a, const Posit& b)
+{
+    return a.div(b);
+}
+
+Posit operator-(const Posit& a)
+{
+    return a.neg();
+}
+
+bool operator<(const Posit&a , const Posit& b)
+{
+    return a.lt(b);
+}
+
+bool operator<=(const Posit&a , const Posit& b)
+{
+    return a.le(b);
+}
+
+bool operator>(const Posit&a , const Posit& b)
+{
+    return a.gt(b);
+}
+
+bool operator>=(const Posit&a , const Posit& b)
+{
+    return a.ge(b);
+}
+bool operator==(const Posit&a , const Posit& b)
+{
+    return a.eq(b);
+}
+
+bool operator!=(const Posit&a , const Posit& b)
+{
+    return !a.eq(b);
 }
