@@ -211,11 +211,7 @@ bool Posit::eq(const Posit& p) const
 
 bool Posit::gt(const Posit& p) const
 {
-    if (isInf() || p.isInf()) {
-        return false;
-    }
-
-    return mBits > p.mBits;
+    return (POSIT_STYPE)mBits > (POSIT_STYPE)p.mBits;
 }
 
 bool Posit::ge(const Posit& p) const
