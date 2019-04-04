@@ -5,8 +5,6 @@
 #include "posit.h"
 #include <stdio.h>
 
-#define NAN     (-1)
-
 #define TEST_OP2(OP, NBITS, ES)                                                \
     Posit a = Posit(NBITS, ES);                                                \
     Posit b = Posit(NBITS, ES);                                                \
@@ -18,13 +16,7 @@
                                                                                \
             Posit c = a.OP(b);                                                 \
                                                                                \
-            if (OP ## _table[j][i] == NAN) {                                   \
-                CuAssertTrue(tc, c.isNan());                                   \
-            } else {                                                           \
-                CuAssertTrue(tc, !c.isNan());                                  \
-                CuAssertTrue(tc, c.getBits() ==                                \
-                                 (POSIT_UTYPE)OP ## _table[j][i]);             \
-            }                                                                  \
+            CuAssertTrue(tc, c.getBits() == (POSIT_UTYPE)OP ## _table[j][i]);  \
         }                                                                      \
     }
 

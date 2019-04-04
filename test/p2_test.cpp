@@ -6,43 +6,45 @@
 
 #include "test.h"
 
+#define NAR     0b10
+
 static POSIT_STYPE sub_table[4][4];
 static POSIT_STYPE add_table[4][4] = {
-//       0     1   inf    -1
-    { 0b00, 0b01, 0b10, 0b11 }, // 0
-    { 0b01, 0b01, 0b10, 0b00 }, // 1
-    { 0b10, 0b10,  NAN, 0b10 }, // inf
-    { 0b11, 0b00, 0b10, 0b11 }, // -1
+//       0     1   NaR    -1
+    { 0b00, 0b01,  NAR, 0b11 }, // 0
+    { 0b01, 0b01,  NAR, 0b00 }, // 1
+    {  NAR,  NAR,  NAR,  NAR }, // NaR
+    { 0b11, 0b00,  NAR, 0b11 }, // -1
 };
 
 static POSIT_STYPE div_table[4][4];
 static POSIT_STYPE mul_table[4][4] = {
-//       0     1   inf    -1
-    { 0b00, 0b00,  NAN, 0b00 }, // 0
-    { 0b00, 0b01, 0b10, 0b11 }, // 1
-    {  NAN, 0b10, 0b10, 0b10 }, // inf
-    { 0b00, 0b11, 0b10, 0b01 }, // -1
+//       0     1   NaR    -1
+    { 0b00, 0b00,  NAR, 0b00 }, // 0
+    { 0b00, 0b01,  NAR, 0b11 }, // 1
+    {  NAR,  NAR,  NAR,  NAR }, // NaR
+    { 0b00, 0b11,  NAR, 0b01 }, // -1
 };
 
 static void TestP2Zero(CuTest* tc)
 {
-    Posit p = Posit(2, 0);
+    Posit p = Posit(0, 2, 0);
     Posit zero = p.zero();
-    Posit inf = p.inf();
+    Posit nar = p.nar();
     Posit neg = p.neg();
     Posit rec = p.rec();
 
     CuAssertTrue(tc, p.isZero());
-    CuAssertTrue(tc, !p.isInf());
+    CuAssertTrue(tc, !p.isNar());
     CuAssertTrue(tc, !p.isNeg());
     CuAssertTrue(tc, p.nbits() == 2);
     CuAssertTrue(tc, p.rs() == 1);
     CuAssertTrue(tc, p.es() == 0);
     CuAssertTrue(tc, p.fs() == 0);
     CuAssertTrue(tc, p.eq(zero));
-    CuAssertTrue(tc, !p.eq(inf));
+    CuAssertTrue(tc, !p.eq(nar));
     CuAssertTrue(tc, p.eq(neg));
-    CuAssertTrue(tc, rec.isInf());
+    CuAssertTrue(tc, rec.isNar());
 }
 
 static void TestP2Add(CuTest* tc)
@@ -67,36 +69,31 @@ static void TestP2Div(CuTest* tc)
 
 static void TestP2Is(CuTest* tc)
 {
-    Posit p = Posit(2, 0);
+    Posit p = Posit(0, 2, 0);
     Posit zero = p.zero();
     Posit one = p.one();
-    Posit inf = p.inf();
+    Posit nar = p.nar();
     Posit mone = p.one().neg();
 
     CuAssertTrue(tc, zero.isZero());
     CuAssertTrue(tc, !one.isZero());
-    CuAssertTrue(tc, !inf.isZero());
+    CuAssertTrue(tc, !nar.isZero());
     CuAssertTrue(tc, !mone.isZero());
 
-    CuAssertTrue(tc, !zero.isOne());
-    CuAssertTrue(tc, one.isOne());
-    CuAssertTrue(tc, !inf.isOne());
-    CuAssertTrue(tc, mone.isOne());
-
-    CuAssertTrue(tc, !zero.isInf());
-    CuAssertTrue(tc, !one.isInf());
-    CuAssertTrue(tc, inf.isInf());
-    CuAssertTrue(tc, !mone.isInf());
+    CuAssertTrue(tc, !zero.isNar());
+    CuAssertTrue(tc, !one.isNar());
+    CuAssertTrue(tc, nar.isNar());
+    CuAssertTrue(tc, !mone.isNar());
 
     CuAssertTrue(tc, !zero.isNeg());
     CuAssertTrue(tc, !one.isNeg());
-    CuAssertTrue(tc, !inf.isNeg());
+    CuAssertTrue(tc, !nar.isNeg());
     CuAssertTrue(tc, mone.isNeg());
 
-    CuAssertTrue(tc, !zero.isNan());
-    CuAssertTrue(tc, !one.isNan());
-    CuAssertTrue(tc, !inf.isNan());
-    CuAssertTrue(tc, !mone.isNan());
+    CuAssertTrue(tc, !zero.isNar());
+    CuAssertTrue(tc, !one.isNar());
+    CuAssertTrue(tc, nar.isNar());
+    CuAssertTrue(tc, !mone.isNar());
 }
 
 CuSuite* TestP2GetSuite(void)

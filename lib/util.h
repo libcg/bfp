@@ -31,8 +31,7 @@ extern "C" {
     (POSIT_MSB | ((frac) >> 1))
 
 bool util_is_zero(POSIT_UTYPE p);
-bool util_is_one(POSIT_UTYPE p);
-bool util_is_inf(POSIT_UTYPE p);
+bool util_is_nar(POSIT_UTYPE p);
 bool util_is_neg(POSIT_UTYPE p);
 
 int util_ss();

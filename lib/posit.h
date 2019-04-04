@@ -8,26 +8,21 @@ private:
     POSIT_UTYPE mBits;
     int mNbits;
     int mEs;
-    bool mNan;
 
     static int sDefaultNbits;
     static int sDefaultEs;
 
-    Posit(POSIT_UTYPE bits, int nbits, int es, bool nan);
-    Posit(int nbits, int es, bool nan);
-
 public:
     static void setDefault(int nbits, int es);
 
+    Posit(POSIT_UTYPE bits, int nbits, int es);
+    Posit(int nbits, int es);
     Posit();
     Posit(double v);
-    Posit(int nbits, int es);
 
     bool isZero() const;                  // check for 0
-    bool isOne() const;                   // check for +/- 1
-    bool isInf() const;                   // check for +/- infinity
+    bool isNar() const;                   // check for NaR
     bool isNeg() const;                   // check for negative
-    bool isNan() const;                   // check for NaN
 
     int nbits() const;                    // size in bits
     int ss() const;                       // sign size in bits
@@ -37,8 +32,7 @@ public:
 
     Posit zero() const;                   // 0
     Posit one() const;                    // 1
-    Posit inf() const;                    // +/-inf
-    Posit nan() const;                    // NaN
+    Posit nar() const;                    // NaR
 
     Posit neg() const;                    // -x
     Posit rec() const;                    // /x as 1 / x

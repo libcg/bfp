@@ -35,7 +35,12 @@ void genDivTable(POSIT_STYPE *div_table, POSIT_STYPE *mul_table, int size)
         }
 
         for (int j = 0; j < size; j++) {
-            div_table[k * size + j] = mul_table[i * size + j];
+            if (k == size / 2) {
+                // TODO explain
+                div_table[k * size + j] = mul_table[size / 2 * size + j];
+            } else {
+                div_table[k * size + j] = mul_table[i * size + j];
+            }
         }
     }
 }

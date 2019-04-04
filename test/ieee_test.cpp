@@ -5,10 +5,8 @@
 
 static void TestIeeeFloat(CuTest* tc)
 {
-    Posit p = Posit(32, 3);
-
     for (float i = 0.f; i < 1000.f; i += 0.001f) {
-        p.set(i);
+        Posit p(i);
         float r = p.getFloat();
         CuAssertTrue(tc, i == r);
     }
@@ -28,10 +26,8 @@ static void TestIeeeFloatPackDenormal(CuTest* tc)
 
 static void TestIeeeDouble(CuTest* tc)
 {
-    Posit p = Posit(32, 3);
-
     for (double i = 0.0; i < 1000.0; i += 0.001) {
-        p.set(i);
+        Posit p(i);
         double r = p.getDouble();
         CuAssertTrue(tc, i - EPSILON < r && r < i + EPSILON);
     }

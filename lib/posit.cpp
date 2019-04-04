@@ -17,31 +17,27 @@ void Posit::setDefault(int nbits, int es)
     sDefaultEs = es;
 }
 
-Posit::Posit(POSIT_UTYPE bits, int nbits, int es, bool nan) :
+Posit::Posit(POSIT_UTYPE bits, int nbits, int es) :
     mBits(bits),
     mNbits(nbits),
-    mEs(es),
-    mNan(nan)
+    mEs(es)
 {
-}
-
-Posit::Posit(int nbits, int es, bool nan) :
-    Posit(0, nbits, es, nan)
-{
-}
-
-Posit::Posit() : Posit(sDefaultNbits, sDefaultEs)
-{
-}
-
-Posit::Posit(double v) : Posit(sDefaultNbits, sDefaultEs)
-{
-    set(v);
 }
 
 Posit::Posit(int nbits, int es) :
-    Posit(nbits, es, false)
+    Posit(POSIT_NAR, nbits, es)
 {
+}
+
+Posit::Posit() :
+    Posit(sDefaultNbits, sDefaultEs)
+{
+}
+
+Posit::Posit(double v) :
+    Posit(sDefaultNbits, sDefaultEs)
+{
+    set(v);
 }
 
 bool Posit::isZero() const
@@ -49,24 +45,14 @@ bool Posit::isZero() const
     return util_is_zero(mBits);
 }
 
-bool Posit::isOne() const
+bool Posit::isNar() const
 {
-    return util_is_one(mBits);
-}
-
-bool Posit::isInf() const
-{
-    return util_is_inf(mBits);
+    return util_is_nar(mBits);
 }
 
 bool Posit::isNeg() const
 {
     return util_is_neg(mBits);
-}
-
-bool Posit::isNan() const
-{
-    return mNan;
 }
 
 int Posit::nbits() const
@@ -96,45 +82,45 @@ int Posit::fs() const
 
 Posit Posit::zero() const
 {
-    return Posit(POSIT_ZERO, mNbits, mEs, false);
+    return Posit(POSIT_ZERO, mNbits, mEs);
 }
 
 Posit Posit::one() const
 {
-    return Posit(POSIT_ONE, mNbits, mEs, false);
+    return Posit(POSIT_ONE, mNbits, mEs);
 }
 
-Posit Posit::inf() const
+Posit Posit::nar() const
 {
-    return Posit(POSIT_INF, mNbits, mEs, false);
-}
-
-Posit Posit::nan() const
-{
-    return Posit(mNbits, mEs, true);
+    return Posit(POSIT_NAR, mNbits, mEs);
 }
 
 Posit Posit::neg() const
 {
-    return Posit(util_neg(mBits, mNbits), mNbits, mEs, false);
+    if (isNar()) {
+        return *this;
+    }
+
+    return Posit(util_neg(mBits, mNbits), mNbits, mEs);
 }
 
 Posit Posit::rec() const
 {
-    return Posit(POSIT_ONE, mNbits, mEs, false).div(*this);
+    if (isNar()) {
+        return *this;
+    }
+
+    return one().div(*this);
 }
 
 Posit Posit::add(const Posit& p) const
 {
-    // fast exit
-    if (isZero()) {
+    if (isNar() || p.isNar()) {
+        return nar();
+    } else if (isZero()) {
         return p;
     } else if (p.isZero()) {
         return *this;
-    } else if (isInf() && p.isInf()) {
-        return nan();
-    } else if (isInf() || p.isInf()) {
-        return inf();
     } else if (neg().eq(p)) {
         return zero();
     }
@@ -143,20 +129,17 @@ Posit Posit::add(const Posit& p) const
     unpacked_t bup = unpack_posit(p.mBits, p.mNbits, p.mEs);
     unpacked_t up = op2_add(aup, bup);
 
-    return Posit(pack_posit(up, mNbits, mEs), mNbits, mEs, false);
+    return Posit(pack_posit(up, mNbits, mEs), mNbits, mEs);
 }
 
 Posit Posit::sub(const Posit& p) const
 {
-    // fast exit
-    if (isZero()) {
+    if (isNar() || p.isNar()) {
+        return nar();
+    } else if (isZero()) {
         return p.neg();
     } else if (p.isZero()) {
         return *this;
-    } else if (isInf() && p.isInf()) {
-        return nan();
-    } else if (isInf() || p.isInf()) {
-        return inf();
     } else if (eq(p)) {
         return zero();
     }
@@ -165,35 +148,30 @@ Posit Posit::sub(const Posit& p) const
     unpacked_t bup = unpack_posit(p.mBits, p.mNbits, p.mEs);
     unpacked_t up = op2_sub(aup, bup);
 
-    return Posit(pack_posit(up, mNbits, mEs), mNbits, mEs, false);
+    return Posit(pack_posit(up, mNbits, mEs), mNbits, mEs);
 }
 
 Posit Posit::mul(const Posit& p) const
 {
-    // fast exit
-    if (isZero()) {
-        return (p.isInf() ? nan() : zero());
-    } else if (p.isZero()) {
-        return (isInf() ? nan() : zero());
-    } else if (isInf() || p.isInf()) {
-        return inf();
+    if (isNar() || p.isNar()) {
+        return nar();
+    } else if (isZero() || p.isZero()) {
+        return zero();
     }
 
     unpacked_t aup = unpack_posit(mBits, mNbits, mEs);
     unpacked_t bup = unpack_posit(p.mBits, p.mNbits, p.mEs);
     unpacked_t up = op2_mul(aup, bup);
 
-    return Posit(pack_posit(up, mNbits, mEs), mNbits, mEs, false);
+    return Posit(pack_posit(up, mNbits, mEs), mNbits, mEs);
 }
 
 Posit Posit::div(const Posit& p) const
 {
     // fast exit
-    if (isInf()) {
-        return (p.isInf() ? nan() : inf());
-    } else if (p.isZero()) {
-        return (isZero() ? nan() : inf());
-    } else if (isZero() || p.isInf()) {
+    if (isNar() || p.isNar() || p.isZero()) {
+        return nar();
+    } else if (isZero()) {
         return zero();
     }
 
@@ -201,7 +179,7 @@ Posit Posit::div(const Posit& p) const
     unpacked_t bup = unpack_posit(p.mBits, p.mNbits, p.mEs);
     unpacked_t up = op2_div(aup, bup);
 
-    return Posit(pack_posit(up, mNbits, mEs), mNbits, mEs, false);
+    return Posit(pack_posit(up, mNbits, mEs), mNbits, mEs);
 }
 
 bool Posit::eq(const Posit& p) const
@@ -233,19 +211,14 @@ void Posit::set(float n)
 {
     switch (fpclassify(n)) {
     case FP_INFINITE:
-        mBits = POSIT_INF;
-        mNan = false;
-        break;
     case FP_NAN:
-        mNan = true;
+        mBits = POSIT_NAR;
         break;
     case FP_ZERO:
         mBits = POSIT_ZERO;
-        mNan = false;
         break;
     default:
         mBits = pack_posit(unpack_float(n), mNbits, mEs);
-        mNan = false;
         break;
     }
 }
@@ -254,19 +227,14 @@ void Posit::set(double n)
 {
     switch (fpclassify(n)) {
     case FP_INFINITE:
-        mBits = POSIT_INF;
-        mNan = false;
-        break;
     case FP_NAN:
-        mNan = true;
+        mBits = POSIT_NAR;
         break;
     case FP_ZERO:
         mBits = POSIT_ZERO;
-        mNan = false;
         break;
     default:
         mBits = pack_posit(unpack_double(n), mNbits, mEs);
-        mNan = false;
         break;
     }
 }
@@ -275,9 +243,7 @@ float Posit::getFloat() const
 {
     if (isZero()) {
         return 0.f;
-    } else if (isInf()) {
-        return 1.f / 0.f;
-    } else if (isNan()) {
+    } else if (isNar()) {
         return 0.f / 0.f;
     }
 
@@ -288,9 +254,7 @@ double Posit::getDouble() const
 {
     if (isZero()) {
         return 0.0;
-    } else if (isInf()) {
-        return 1.0 / 0.0;
-    } else if (isNan()) {
+    } else if (isNar()) {
         return 0.0 / 0.0;
     }
 
@@ -309,16 +273,21 @@ POSIT_UTYPE Posit::getBits()
 
 void Posit::print()
 {
-    Posit p = isNeg() || isInf() ? neg() : *this;
+    Posit p = (isNeg() ? neg() : *this);
 
     printf("{%d, %d} ", mNbits, mEs);
+
+    if (isNar()) {
+        printf("NaR\n");
+        return;
+    }
 
     for (int i = POSIT_WIDTH - 1; i >= POSIT_WIDTH - mNbits; i--) {
         printf("%d", (mBits >> i) & 1);
     }
 
     printf(" -> ");
-    printf(isNeg() || isInf() ? "-" : "+");
+    printf(isNeg() ? "-" : "+");
 
     for (int i = POSIT_WIDTH - ss() - 1; i >= POSIT_WIDTH - mNbits; i--) {
         printf("%d", (p.mBits >> i) & 1);

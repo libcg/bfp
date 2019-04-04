@@ -5,19 +5,14 @@ bool util_is_zero(POSIT_UTYPE p)
     return p == POSIT_ZERO;
 }
 
-bool util_is_one(POSIT_UTYPE p)
+bool util_is_nar(POSIT_UTYPE p)
 {
-    return p == POSIT_ONE || p == POSIT_MONE;
-}
-
-bool util_is_inf(POSIT_UTYPE p)
-{
-    return p == POSIT_INF;
+    return p == POSIT_NAR;
 }
 
 bool util_is_neg(POSIT_UTYPE p)
 {
-    return (POSIT_STYPE)p < 0 && p != POSIT_INF;
+    return (POSIT_STYPE)p < 0 && !util_is_nar(p);
 }
 
 int util_ss()
