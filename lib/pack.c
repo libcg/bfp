@@ -30,16 +30,16 @@ POSIT_UTYPE pack_posit(struct unpacked_t up, int nbits, int es)
     POSIT_UTYPE exp = up.exp - POW2(es) * reg;
 
     if (reg < 0) {
-        regbits = POSIT_MSB >> -reg;
+        regbits = RSHIFT(POSIT_MSB, -reg);
     } else {
         regbits = LMASK(POSIT_MASK, reg + 1);
     }
-    expbits = LMASK(exp << (POSIT_WIDTH - es), es);
+    expbits = LMASK(LSHIFT(exp, POSIT_WIDTH - es), es);
 
     p = up.frac;
-    p = expbits | (p >> es);
-    p = regbits | (p >> rs);
-    p = p >> ss;
+    p = expbits | RSHIFT(p, es);
+    p = regbits | RSHIFT(p, rs);
+    p = RSHIFT(p, ss);
 
     if (up.neg) {
         return util_neg(p, nbits);
@@ -58,23 +58,23 @@ float pack_float(struct unpacked_t up)
 
     if (fexp > 254) {
         // overflow, set maximum value
-        fexpbits = 254 << 24;
+        fexpbits = LSHIFT(254, 24);
         ffracbits = -1;
     } else if (fexp < 1) {
         // underflow, pack as denormal
         fexpbits = 0;
 #if POSIT_WIDTH <= 32
-        ffracbits = (uint32_t)(POSIT_MSB | (up.frac >> 1)) << (32 - POSIT_WIDTH);
+        ffracbits = LSHIFT((uint32_t)(POSIT_MSB | RSHIFT(up.frac, 1)), 32 - POSIT_WIDTH);
 #else
-        ffracbits = (POSIT_MSB | (up.frac >> 1)) >> (POSIT_WIDTH - 32);
+        ffracbits = RSHIFT(POSIT_MSB | RSHIFT(up.frac, 1), POSIT_WIDTH - 32);
 #endif
-        ffracbits >>= -fexp;
+        ffracbits = RSHIFT(ffracbits, -fexp);
     } else {
-        fexpbits = (fexp & 0xFF) << 24;
+        fexpbits = LSHIFT(fexp & 0xFF, 24);
 #if POSIT_WIDTH <= 32
-        ffracbits = (uint32_t)up.frac << (32 - POSIT_WIDTH);
+        ffracbits = LSHIFT((uint32_t)up.frac, 32 - POSIT_WIDTH);
 #else
-        ffracbits = up.frac >> (POSIT_WIDTH - 32);
+        ffracbits = RSHIFT(up.frac, POSIT_WIDTH - 32);
 #endif
     }
 
@@ -84,11 +84,11 @@ float pack_float(struct unpacked_t up)
     } un;
 
     un.u = ffracbits;
-    un.u = fexpbits | (un.u >> 8);
-    un.u = (up.neg << 31) | (un.u >> 1);
+    un.u = fexpbits | RSHIFT(un.u, 8);
+    un.u = LSHIFT(up.neg, 31) | RSHIFT(un.u, 1);
 
     // don't underflow to zero
-    if ((un.u << 1) == 0) {
+    if (LSHIFT(un.u, 1) == 0) {
         un.u++;
     }
 
@@ -105,23 +105,23 @@ double pack_double(struct unpacked_t up)
 
     if (fexp > 2046) {
         // overflow, set maximum value
-        fexpbits = (uint64_t)2046 << 53;
+        fexpbits = LSHIFT((uint64_t)2046, 53);
         ffracbits = -1;
     } else if (fexp < 1) {
         // underflow, pack as denormal
         fexpbits = 0;
 #if POSIT_WIDTH <= 64
-        ffracbits = (uint64_t)(POSIT_MSB | (up.frac >> 1)) << (64 - POSIT_WIDTH);
+        ffracbits = LSHIFT((uint64_t)(POSIT_MSB | RSHIFT(up.frac, 1)), 64 - POSIT_WIDTH);
 #else
-        ffracbits = (POSIT_MSB | (up.frac >> 1)) >> (POSIT_WIDTH - 64);
+        ffracbits = RSHIFT(POSIT_MSB | RSHIFT(up.frac, 1), POSIT_WIDTH - 64);
 #endif
-        ffracbits >>= -fexp;
+        ffracbits = RSHIFT(ffracbits, -fexp);
     } else {
-        fexpbits = (uint64_t)(fexp & 0x7FF) << 53;
+        fexpbits = LSHIFT((uint64_t)(fexp & 0x7FF), 53);
 #if POSIT_WIDTH <= 64
-        ffracbits = (uint64_t)up.frac << (64 - POSIT_WIDTH);
+        ffracbits = LSHIFT((uint64_t)up.frac, 64 - POSIT_WIDTH);
 #else
-        ffracbits = up.frac >> (POSIT_WIDTH - 64);
+        ffracbits = RSHIFT(up.frac, POSIT_WIDTH - 64);
 #endif
     }
 
@@ -131,11 +131,11 @@ double pack_double(struct unpacked_t up)
     } un;
 
     un.u = ffracbits;
-    un.u = fexpbits | (un.u >> 11);
-    un.u = ((uint64_t)up.neg << 63) | (un.u >> 1);
+    un.u = fexpbits | RSHIFT(un.u, 11);
+    un.u = LSHIFT((uint64_t)up.neg, 63) | RSHIFT(un.u, 1);
 
     // don't underflow to zero
-    if ((un.u << 1) == 0) {
+    if (LSHIFT(un.u, 1) == 0) {
         un.u++;
     }
 
@@ -154,15 +154,15 @@ struct unpacked_t unpack_posit(POSIT_UTYPE p, int nbits, int es)
     int ss = util_ss();
     int rs = util_rs(p, nbits);
 
-    int lz = CLZ(p << ss);
-    int lo = CLZ(~p << ss);
+    int lz = CLZ(LSHIFT(p, ss));
+    int lo = CLZ(LSHIFT(~p, ss));
 
     int reg = (lz == 0 ? lo - 1 : -lz);
-    POSIT_UTYPE exp = (p << (ss + rs)) >> (POSIT_WIDTH - es);
+    POSIT_UTYPE exp = RSHIFT(LSHIFT(p, ss + rs), POSIT_WIDTH - es);
 
     up.neg = neg;
     up.exp = POW2(es) * reg + exp;
-    up.frac = p << (ss + rs + es);
+    up.frac = LSHIFT(p, ss + rs + es);
 
     return up;
 }
@@ -179,19 +179,19 @@ struct unpacked_t unpack_float(float f)
 
     un.f = f;
 
-    up.neg = un.u >> 31;
-    up.exp = ((un.u >> 23) & 0xFF) - bias;
+    up.neg = RSHIFT(un.u, 31);
+    up.exp = (RSHIFT(un.u, 23) & 0xFF) - bias;
 #if POSIT_WIDTH <= 32
-    up.frac = (un.u << 9) >> (32 - POSIT_WIDTH);
+    up.frac = RSHIFT(LSHIFT(un.u, 9), 32 - POSIT_WIDTH);
 #else
-    up.frac = (POSIT_UTYPE)un.u << (POSIT_WIDTH - 32 + 9);
+    up.frac = LSHIFT((POSIT_UTYPE)un.u, POSIT_WIDTH - 32 + 9);
 #endif
 
     if (up.exp == -bias) {
         // normalize
         // FIXME: some precision is lost if frac was downcasted
         up.exp -= CLZ(up.frac);
-        up.frac <<= CLZ(up.frac) + 1;
+        up.frac = LSHIFT(up.frac, CLZ(up.frac) + 1);
     }
 
     return up;
@@ -209,19 +209,19 @@ struct unpacked_t unpack_double(double f)
 
     un.f = f;
 
-    up.neg = un.u >> 63;
-    up.exp = ((un.u >> 52) & 0x7FF) - bias;
+    up.neg = RSHIFT(un.u, 63);
+    up.exp = (RSHIFT(un.u, 52) & 0x7FF) - bias;
 #if POSIT_WIDTH <= 64
-    up.frac = (un.u << 12) >> (64 - POSIT_WIDTH);
+    up.frac = RSHIFT(LSHIFT(un.u, 12), 64 - POSIT_WIDTH);
 #else
-    up.frac = (POSIT_UTYPE)un.u << (POSIT_WIDTH - 64 + 12);
+    up.frac = LSHIFT((POSIT_UTYPE)un.u, POSIT_WIDTH - 64 + 12);
 #endif
 
     if (up.exp == -bias) {
         // normalize
         // FIXME: some precision is lost if frac was downcasted
         up.exp -= CLZ(up.frac);
-        up.frac <<= CLZ(up.frac) + 1;
+        up.frac = LSHIFT(up.frac, CLZ(up.frac) + 1);
     }
 
     return up;

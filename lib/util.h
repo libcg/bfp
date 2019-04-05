@@ -12,8 +12,16 @@ extern "C" {
     ((n) == 0 ? POSIT_WIDTH : __builtin_clz(n))
 #endif
 
+// shift count wraps around on x86: https://stackoverflow.com/q/3871650
+#define LSHIFT(bits, shift) \
+    ((shift) >= (int)(8 * sizeof(bits)) ? 0 : (bits) << (shift))
+
+// shift count wraps around on x86: https://stackoverflow.com/q/3871650
+#define RSHIFT(bits, shift) \
+    ((shift) >= (int)(8 * sizeof(bits)) ? 0 : (bits) >> (shift))
+
 #define POW2(n) \
-    (1 << (n))
+    (LSHIFT(1, (n)))
 
 #define FLOORDIV(a, b) \
     ((a) / (b) - ((a) % (b) < 0))
@@ -25,10 +33,10 @@ extern "C" {
     ((a) > (b) ? (a) : (b))
 
 #define LMASK(bits, size) \
-    ((bits) & (POSIT_MASK << (POSIT_WIDTH - (size))))
+    ((bits) & LSHIFT(POSIT_MASK, POSIT_WIDTH - (size)))
 
 #define HIDDEN_BIT(frac) \
-    (POSIT_MSB | ((frac) >> 1))
+    (POSIT_MSB | RSHIFT((frac), 1))
 
 bool util_is_zero(POSIT_UTYPE p);
 bool util_is_nar(POSIT_UTYPE p);

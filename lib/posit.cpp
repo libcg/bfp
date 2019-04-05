@@ -263,12 +263,12 @@ double Posit::getDouble() const
 
 void Posit::setBits(POSIT_UTYPE bits)
 {
-    mBits = bits << (POSIT_WIDTH - mNbits);
+    mBits = LSHIFT(bits, POSIT_WIDTH - mNbits);
 }
 
 POSIT_UTYPE Posit::getBits()
 {
-    return mBits >> (POSIT_WIDTH - mNbits);
+    return RSHIFT(mBits, POSIT_WIDTH - mNbits);
 }
 
 void Posit::print()
@@ -283,14 +283,14 @@ void Posit::print()
     }
 
     for (int i = POSIT_WIDTH - 1; i >= POSIT_WIDTH - mNbits; i--) {
-        printf("%d", (mBits >> i) & 1);
+        printf("%d", RSHIFT(mBits, i) & 1);
     }
 
     printf(" -> ");
     printf(isNeg() ? "-" : "+");
 
     for (int i = POSIT_WIDTH - ss() - 1; i >= POSIT_WIDTH - mNbits; i--) {
-        printf("%d", (p.mBits >> i) & 1);
+        printf("%d", RSHIFT(p.mBits, i) & 1);
 
         if (i != POSIT_WIDTH - mNbits &&
             ((i == POSIT_WIDTH - ss() - p.rs()) ||

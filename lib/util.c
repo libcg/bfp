@@ -23,8 +23,8 @@ int util_ss()
 int util_rs(POSIT_UTYPE p, int nbits)
 {
     int ss = util_ss();
-    int lz = CLZ(p << ss);
-    int lo = CLZ(~p << ss);
+    int lz = CLZ(LSHIFT(p, ss));
+    int lo = CLZ(LSHIFT(~p, ss));
     int rs = MAX(lz, lo) + 1;
 
     return MIN(rs, nbits - ss);
