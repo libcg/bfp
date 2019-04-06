@@ -8,8 +8,11 @@ extern "C" {
 #include "posit_types.h"
 
 #ifdef __GNUC__
+#if POSIT_WIDTH > 32
+#error "CLZ doesn't support 64-bit"
+#endif
 #define CLZ(n) \
-    ((n) == 0 ? POSIT_WIDTH : __builtin_clz(n))
+    ((n) == 0 ? 8 * sizeof(n) : __builtin_clz(n))
 #endif
 
 // shift count wraps around on x86: https://stackoverflow.com/q/3871650
