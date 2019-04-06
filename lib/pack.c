@@ -155,7 +155,7 @@ struct unpacked_t unpack_posit(POSIT_UTYPE p, int nbits, int es)
     int rs = util_rs(p, nbits);
 
     int lz = CLZ(LSHIFT(p, ss));
-    int lo = CLZ(LSHIFT(~p, ss));
+    int lo = CLZ(LSHIFT(~p, ss) | 1); // add LSB to compensate for sign bit
 
     int reg = (lz == 0 ? lo - 1 : -lz);
     POSIT_UTYPE exp = RSHIFT(LSHIFT(p, ss + rs), POSIT_WIDTH - es);
