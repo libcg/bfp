@@ -85,7 +85,7 @@ float pack_float(struct unpacked_t up)
 
     un.u = ffracbits;
     un.u = fexpbits | RSHIFT(un.u, 8);
-    un.u = LSHIFT(up.neg, 31) | RSHIFT(un.u, 1);
+    un.u = LSHIFT((uint32_t)up.neg, 31) | RSHIFT(un.u, 1);
 
     // don't underflow to zero
     if (LSHIFT(un.u, 1) == 0) {
