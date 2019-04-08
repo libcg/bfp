@@ -35,7 +35,8 @@ public:
     Posit nar() const;                    // NaR
 
     Posit neg() const;                    // -x
-    Posit rec() const;                    // /x as 1 / x
+    Posit rec() const;                    // 1 / x
+    Posit sqrt() const;                   // sqrt(x)
 
     Posit add(const Posit& p) const;      // x + p
     Posit sub(const Posit& p) const;      // x - p

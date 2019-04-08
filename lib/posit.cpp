@@ -1,6 +1,7 @@
 #include "posit.h"
 #include "util.h"
 #include "pack.h"
+#include "op1.h"
 #include "op2.h"
 
 #include <cstdio>
@@ -98,7 +99,7 @@ Posit Posit::nar() const
 Posit Posit::neg() const
 {
     if (isNar()) {
-        return *this;
+        return nar();
     }
 
     return Posit(util_neg(mBits, mNbits), mNbits, mEs);
@@ -107,10 +108,22 @@ Posit Posit::neg() const
 Posit Posit::rec() const
 {
     if (isNar()) {
-        return *this;
+        return nar();
     }
 
     return one().div(*this);
+}
+
+Posit Posit::sqrt() const
+{
+    if (isNar() || isNeg()) {
+        return nar();
+    }
+
+    unpacked_t aup = unpack_posit(mBits, mNbits, mEs);
+    unpacked_t up = op1_sqrt(aup);
+
+    return Posit(pack_posit(up, mNbits, mEs), mNbits, mEs);
 }
 
 Posit Posit::add(const Posit& p) const
