@@ -107,7 +107,7 @@ Posit Posit::neg() const
 
 Posit Posit::rec() const
 {
-    if (isNar()) {
+    if (isNar() || isZero()) {
         return nar();
     }
 
