@@ -6,9 +6,9 @@ static struct unpacked_t half(struct unpacked_t a)
 {
     struct unpacked_t r = a;
 
-    a.exp--;
+    r.exp--;
 
-    return a;
+    return r;
 }
 
 struct unpacked_t op1_sqrt(struct unpacked_t a)
