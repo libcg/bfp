@@ -163,7 +163,6 @@ Posit Posit::mul(const Posit& p) const
 
 Posit Posit::div(const Posit& p) const
 {
-    // fast exit
     if (isNar() || p.isNar() || p.isZero()) {
         return nar();
     } else if (isZero()) {
