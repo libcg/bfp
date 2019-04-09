@@ -118,6 +118,8 @@ Posit Posit::sqrt() const
 {
     if (isNar() || isNeg()) {
         return nar();
+    } else if (isZero()) {
+        return zero();
     }
 
     unpacked_t aup = unpack_posit(mBits, mNbits, mEs);
