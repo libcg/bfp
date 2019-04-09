@@ -49,6 +49,7 @@ public:
     bool lt(const Posit& p) const;        // x < p
     bool le(const Posit& p) const;        // x <= p
 
+    void set(Posit p);                    // x = p
     void set(float n);                    // x = n
     void set(double n);                   // x = n
 
@@ -65,6 +66,7 @@ class Posit8 : public Posit
 {
 public:
     Posit8();
+    Posit8(Posit v);
     Posit8(float v);
     Posit8(double v);
 };
@@ -73,6 +75,7 @@ class Posit16 : public Posit
 {
 public:
     Posit16();
+    Posit16(Posit v);
     Posit16(float v);
     Posit16(double v);
 };
@@ -81,6 +84,7 @@ class Posit32 : public Posit
 {
 public:
     Posit32();
+    Posit32(Posit v);
     Posit32(float v);
     Posit32(double v);
 };

@@ -222,6 +222,11 @@ bool Posit::le(const Posit& p) const
     return !gt(p);
 }
 
+void Posit::set(Posit p)
+{
+    mBits = pack_posit(unpack_posit(p.mBits, p.mNbits, p.mEs), mNbits, mEs);
+}
+
 void Posit::set(float n)
 {
     switch (fpclassify(n)) {
@@ -323,6 +328,12 @@ Posit8::Posit8() :
 
 }
 
+Posit8::Posit8(Posit v) :
+    Posit8()
+{
+    set(v);
+}
+
 Posit8::Posit8(float v) :
     Posit8()
 {
@@ -341,6 +352,12 @@ Posit16::Posit16() :
 
 }
 
+Posit16::Posit16(Posit v) :
+    Posit16()
+{
+    set(v);
+}
+
 Posit16::Posit16(float v) :
     Posit16()
 {
@@ -357,6 +374,12 @@ Posit32::Posit32() :
     Posit(32, 2)
 {
 
+}
+
+Posit32::Posit32(Posit v) :
+    Posit32()
+{
+    set(v);
 }
 
 Posit32::Posit32(float v) :
