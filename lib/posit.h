@@ -64,61 +64,25 @@ public:
 class Posit8 : public Posit
 {
 public:
-    Posit8() :
-        Posit(8, 0)
-    { }
-
-    Posit8(float v) :
-        Posit8()
-    {
-        set(v);
-    }
-
-    Posit8(double v) :
-        Posit8()
-    {
-        set(v);
-    }
+    Posit8();
+    Posit8(float v);
+    Posit8(double v);
 };
 
 class Posit16 : public Posit
 {
 public:
-    Posit16() :
-        Posit(16, 1)
-    { }
-
-    Posit16(float v) :
-        Posit16()
-    {
-        set(v);
-    }
-
-    Posit16(double v) :
-        Posit16()
-    {
-        set(v);
-    }
+    Posit16();
+    Posit16(float v);
+    Posit16(double v);
 };
 
 class Posit32 : public Posit
 {
 public:
-    Posit32() :
-        Posit(32, 2)
-    { }
-
-    Posit32(float v) :
-        Posit32()
-    {
-        set(v);
-    }
-
-    Posit32(double v) :
-        Posit32()
-    {
-        set(v);
-    }
+    Posit32();
+    Posit32(float v);
+    Posit32(double v);
 };
 
 Posit operator+(const Posit& a, const Posit& b);
