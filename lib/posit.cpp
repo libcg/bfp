@@ -17,7 +17,7 @@ Posit::Posit(POSIT_UTYPE bits, int nbits, int es) :
 }
 
 Posit::Posit(int nbits, int es) :
-    Posit(POSIT_NAR, nbits, es)
+    Posit(POSIT_ZERO, nbits, es)
 {
 }
 
