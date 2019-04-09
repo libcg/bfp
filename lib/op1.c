@@ -14,17 +14,20 @@ static struct unpacked_t half(struct unpacked_t a)
 struct unpacked_t op1_sqrt(struct unpacked_t a)
 {
     struct unpacked_t r = a;
-    bool found = false;
 
-    // initial guess: half exponent
+    // initial guess: half exponent is the sqrt if we ignore fraction bits
     r.exp /= 2;
 
-    for (int i = 0; !found && i < 100; i++) {
+    for (int i = 0; i < 100; i++) {
         struct unpacked_t rn;
 
-        // Newton-Raphson: rn = r - (r^2 - a) / (2 * r)
-        rn = op2_sub(r, half(op2_div(op2_sub(op2_mul(r, r), a), r)));
-        found = (rn.exp == r.exp && rn.frac == r.frac);
+        // Newton-Raphson: rn = r - (r^2 - a) / (2 * r) = (r + a / r) / 2
+        rn = half(op2_add(r, op2_div(a, r)));
+
+        if (rn.exp == r.exp && rn.frac == r.frac) {
+            break;
+        }
+
         r = rn;
     }
 
